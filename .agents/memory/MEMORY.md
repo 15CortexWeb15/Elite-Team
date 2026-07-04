@@ -1,0 +1,1 @@
+- [FinTrack Architecture](fintrack-arch.md) — full-stack trading journal SaaS; key patterns, auth wiring, and backend conventions to keep consistent.

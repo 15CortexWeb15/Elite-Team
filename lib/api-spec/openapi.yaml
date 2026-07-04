@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: FinTrack API — AI-powered trading journal
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: onboarding
+    description: User onboarding
+  - name: trades
+    description: Trade journal CRUD
+  - name: analytics
+    description: Trading analytics and statistics
+  - name: ai
+    description: AI coaching endpoints
+  - name: profile
+    description: User profile management
+  - name: feedback
+    description: User feedback
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +36,792 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── ONBOARDING ───────────────────────────────────────────────
+  /onboarding:
+    get:
+      operationId: getOnboarding
+      tags: [onboarding]
+      summary: Get current user's onboarding data
+      responses:
+        "200":
+          description: Onboarding data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Onboarding"
+        "404":
+          description: Not found
+    post:
+      operationId: saveOnboarding
+      tags: [onboarding]
+      summary: Save onboarding answers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardingInput"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Onboarding"
+
+  # ─── TRADES ───────────────────────────────────────────────────
+  /trades:
+    get:
+      operationId: listTrades
+      tags: [trades]
+      summary: List trades with optional search and filter
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by asset or notes
+        - in: query
+          name: market
+          schema:
+            type: string
+          description: Filter by market
+        - in: query
+          name: direction
+          schema:
+            type: string
+            enum: [long, short]
+          description: Filter by direction
+        - in: query
+          name: result
+          schema:
+            type: string
+            enum: [win, loss, breakeven]
+          description: Filter by result
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date
+          description: Filter from date
+        - in: query
+          name: dateTo
+          schema:
+            type: string
+            format: date
+          description: Filter to date
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Limit results
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: Offset for pagination
+      responses:
+        "200":
+          description: List of trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trade"
+
+    post:
+      operationId: createTrade
+      tags: [trades]
+      summary: Create a new trade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradeInput"
+      responses:
+        "201":
+          description: Created trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+
+  /trades/{id}:
+    get:
+      operationId: getTrade
+      tags: [trades]
+      summary: Get a single trade
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateTrade
+      tags: [trades]
+      summary: Update a trade
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradeUpdate"
+      responses:
+        "200":
+          description: Updated trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+        "404":
+          description: Not found
+
+    delete:
+      operationId: deleteTrade
+      tags: [trades]
+      summary: Delete a trade
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ─── ANALYTICS ───────────────────────────────────────────────
+  /analytics/dashboard:
+    get:
+      operationId: getDashboard
+      tags: [analytics]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /analytics/profit-curve:
+    get:
+      operationId: getProfitCurve
+      tags: [analytics]
+      summary: Cumulative profit/loss curve over time
+      responses:
+        "200":
+          description: Profit curve data points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfitPoint"
+
+  /analytics/monthly-returns:
+    get:
+      operationId: getMonthlyReturns
+      tags: [analytics]
+      summary: Monthly P&L grouped by month
+      responses:
+        "200":
+          description: Monthly returns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyReturn"
+
+  /analytics/by-asset:
+    get:
+      operationId: getAnalyticsByAsset
+      tags: [analytics]
+      summary: Performance breakdown by asset
+      responses:
+        "200":
+          description: Per-asset stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssetStat"
+
+  /analytics/by-day:
+    get:
+      operationId: getAnalyticsByDay
+      tags: [analytics]
+      summary: Trading frequency and P&L by day of week
+      responses:
+        "200":
+          description: Per-day stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DayStat"
+
+  /analytics/calendar:
+    get:
+      operationId: getCalendarData
+      tags: [analytics]
+      summary: Daily P&L summary for calendar view
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+        - in: query
+          name: month
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Calendar P&L data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarDay"
+
+  # ─── AI COACH ────────────────────────────────────────────────
+  /ai/analysis:
+    post:
+      operationId: requestAiAnalysis
+      tags: [ai]
+      summary: Request a fresh AI analysis of trading journal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiAnalysisRequest"
+      responses:
+        "200":
+          description: AI analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiAnalysis"
+
+  /ai/analysis/latest:
+    get:
+      operationId: getLatestAiAnalysis
+      tags: [ai]
+      summary: Get the most recent cached AI analysis
+      responses:
+        "200":
+          description: Latest analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiAnalysis"
+        "404":
+          description: No analysis yet
+
+  # ─── PROFILE ──────────────────────────────────────────────────
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /profile/account:
+    delete:
+      operationId: deleteAccount
+      tags: [profile]
+      summary: Delete account and all data
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── FEEDBACK ─────────────────────────────────────────────────
+  /feedback:
+    post:
+      operationId: submitFeedback
+      tags: [feedback]
+      summary: Submit user feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feedback"
+
+    get:
+      operationId: listFeedback
+      tags: [feedback]
+      summary: List all feedback submitted by current user
+      responses:
+        "200":
+          description: List of feedback
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feedback"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── ONBOARDING ───────────────────────────────
+    Onboarding:
+      type: object
+      required: [id, userId, completed]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        completed:
+          type: boolean
+        experience:
+          type: ["string", "null"]
+        markets:
+          type: ["string", "null"]
+        tradingStyle:
+          type: ["string", "null"]
+        goals:
+          type: ["string", "null"]
+        timezone:
+          type: ["string", "null"]
+        riskProfile:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OnboardingInput:
+      type: object
+      properties:
+        experience:
+          type: string
+        markets:
+          type: string
+        tradingStyle:
+          type: string
+        goals:
+          type: string
+        timezone:
+          type: string
+        riskProfile:
+          type: string
+
+    # ─── TRADE ────────────────────────────────────
+    Trade:
+      type: object
+      required: [id, userId, asset, market, direction, entryPrice, exitPrice, tradeDate, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        asset:
+          type: string
+        market:
+          type: string
+        direction:
+          type: string
+          enum: [long, short]
+        entryPrice:
+          type: number
+        exitPrice:
+          type: number
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        positionSize:
+          type: number
+        commission:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        tradeDate:
+          type: string
+          format: date
+        closeDate:
+          type: ["string", "null"]
+          format: date
+        # Computed fields
+        profitLoss:
+          type: ["number", "null"]
+        profitLossPercent:
+          type: ["number", "null"]
+        riskReward:
+          type: ["number", "null"]
+        result:
+          type: ["string", "null"]
+          enum: [win, loss, breakeven, null]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TradeInput:
+      type: object
+      required: [asset, market, direction, entryPrice, exitPrice, positionSize, tradeDate]
+      properties:
+        asset:
+          type: string
+          minLength: 1
+        market:
+          type: string
+          minLength: 1
+        direction:
+          type: string
+          enum: [long, short]
+        entryPrice:
+          type: number
+        exitPrice:
+          type: number
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        positionSize:
+          type: number
+        commission:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        tradeDate:
+          type: string
+          format: date
+        closeDate:
+          type: ["string", "null"]
+          format: date
+
+    TradeUpdate:
+      type: object
+      properties:
+        asset:
+          type: string
+          minLength: 1
+        market:
+          type: string
+        direction:
+          type: string
+          enum: [long, short]
+        entryPrice:
+          type: number
+        exitPrice:
+          type: number
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        positionSize:
+          type: number
+        commission:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        tradeDate:
+          type: string
+          format: date
+        closeDate:
+          type: ["string", "null"]
+          format: date
+
+    # ─── ANALYTICS ────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalTrades, winRate, totalProfitLoss, todayProfitLoss, overallProfitLoss, currentStreak, averageRR, recentTrades]
+      properties:
+        totalTrades:
+          type: integer
+        winRate:
+          type: number
+        totalProfitLoss:
+          type: number
+        todayProfitLoss:
+          type: number
+        overallProfitLoss:
+          type: number
+        currentStreak:
+          type: integer
+        streakType:
+          type: ["string", "null"]
+          enum: [win, loss, null]
+        averageRR:
+          type: ["number", "null"]
+        monthlyProfitLoss:
+          type: number
+        recentTrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/Trade"
+        aiSummary:
+          type: ["string", "null"]
+
+    ProfitPoint:
+      type: object
+      required: [date, cumulativePL, dailyPL, tradeCount]
+      properties:
+        date:
+          type: string
+          format: date
+        cumulativePL:
+          type: number
+        dailyPL:
+          type: number
+        tradeCount:
+          type: integer
+
+    MonthlyReturn:
+      type: object
+      required: [year, month, label, profitLoss, tradeCount, winRate]
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+        label:
+          type: string
+        profitLoss:
+          type: number
+        tradeCount:
+          type: integer
+        winRate:
+          type: number
+
+    AssetStat:
+      type: object
+      required: [asset, market, tradeCount, totalPL, winRate, avgRR]
+      properties:
+        asset:
+          type: string
+        market:
+          type: string
+        tradeCount:
+          type: integer
+        totalPL:
+          type: number
+        winRate:
+          type: number
+        avgRR:
+          type: ["number", "null"]
+
+    DayStat:
+      type: object
+      required: [dayOfWeek, dayName, tradeCount, totalPL, winRate]
+      properties:
+        dayOfWeek:
+          type: integer
+        dayName:
+          type: string
+        tradeCount:
+          type: integer
+        totalPL:
+          type: number
+        winRate:
+          type: number
+
+    CalendarDay:
+      type: object
+      required: [date, profitLoss, tradeCount, result]
+      properties:
+        date:
+          type: string
+          format: date
+        profitLoss:
+          type: number
+        tradeCount:
+          type: integer
+        result:
+          type: string
+          enum: [win, loss, breakeven, none]
+
+    # ─── AI ───────────────────────────────────────
+    AiAnalysisRequest:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [week, month, all]
+
+    AiAnalysis:
+      type: object
+      required: [id, userId, period, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        period:
+          type: string
+        strengths:
+          type: ["string", "null"]
+        weaknesses:
+          type: ["string", "null"]
+        repeatedMistakes:
+          type: ["string", "null"]
+        riskAnalysis:
+          type: ["string", "null"]
+        psychologyInsights:
+          type: ["string", "null"]
+        consistencyScore:
+          type: ["number", "null"]
+        actionableImprovements:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    # ─── PROFILE ──────────────────────────────────
+    UserProfile:
+      type: object
+      required: [id, userId, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        displayName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        timezone:
+          type: ["string", "null"]
+        theme:
+          type: ["string", "null"]
+          enum: [light, dark, system, null]
+        notificationsEnabled:
+          type: ["boolean", "null"]
+        aiInsightsEnabled:
+          type: ["boolean", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        displayName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        timezone:
+          type: ["string", "null"]
+        theme:
+          type: ["string", "null"]
+          enum: [light, dark, system]
+        notificationsEnabled:
+          type: ["boolean", "null"]
+        aiInsightsEnabled:
+          type: ["boolean", "null"]
+
+    # ─── FEEDBACK ─────────────────────────────────
+    Feedback:
+      type: object
+      required: [id, userId, type, message, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        type:
+          type: string
+          enum: [bug, feature, general]
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    FeedbackInput:
+      type: object
+      required: [type, message]
+      properties:
+        type:
+          type: string
+          enum: [bug, feature, general]
+        message:
+          type: string
+          minLength: 1

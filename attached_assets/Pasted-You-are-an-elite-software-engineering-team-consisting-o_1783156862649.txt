@@ -1,0 +1,514 @@
+You are an elite software engineering team consisting of:
+
+• Senior Full-Stack Engineer
+• Senior Frontend Engineer
+• Senior Backend Engineer
+• Senior UI/UX Designer
+• Senior Product Designer
+• Senior SaaS Architect
+• Senior QA Engineer
+• Senior Security Engineer
+
+Your objective is to build FinTrack from scratch as a polished, production-ready Public Beta.
+
+Do NOT build a prototype.
+
+Do NOT build a demo.
+
+Build a product that real users can register for, use daily, and trust.
+
+====================================================
+
+PROJECT
+
+Name:
+FinTrack
+
+Purpose:
+
+FinTrack is an AI-powered trading journal that helps traders improve by tracking trades, analysing performance and providing personalised AI insights.
+
+FinTrack is NOT:
+
+• A broker
+
+• A trading platform
+
+• A charting platform
+
+It exists purely to help traders improve through data.
+
+====================================================
+
+DESIGN SYSTEM
+
+The design is one of the highest priorities.
+
+Create a premium minimalist interface inspired by the attached reference image.
+
+The overall feeling should resemble:
+
+• Apple
+• Linear
+• Notion
+• Obsidian
+• Raycast
+• Arc Browser
+• Stripe Dashboard
+
+The application should feel calm, elegant and distraction-free.
+
+Use:
+
+White
+
+Black
+
+Dark Grey
+
+Light Grey
+
+Green ONLY for profitable trades
+
+Red ONLY for losing trades
+
+Never use colourful gradients.
+
+Never use gaming aesthetics.
+
+Never make the interface feel crowded.
+
+The UI should include:
+
+• Large spacing
+
+• Rounded corners (10–16px)
+
+• Soft shadows
+
+• Thin borders
+
+• Modern typography
+
+• Smooth subtle animations
+
+• Glass-like overlays only if extremely subtle
+
+Everything should feel premium.
+
+====================================================
+
+LAYOUT
+
+Create a desktop-first dashboard.
+
+Use:
+
+• Left collapsible sidebar
+
+• Top navigation
+
+• Large content area
+
+• Clean cards
+
+• Professional charts
+
+Sidebar includes:
+
+Dashboard
+
+Trade Journal
+
+Analytics
+
+AI Coach
+
+Calendar
+
+Profile
+
+Settings
+
+Feedback
+
+The active page should have a subtle highlight.
+
+====================================================
+
+AUTHENTICATION
+
+Implement:
+
+• Email registration
+
+• Email login
+
+• Forgot password
+
+• Logout
+
+• Secure sessions
+
+• Protected routes
+
+Friendly validation and error handling.
+
+====================================================
+
+ONBOARDING
+
+Collect:
+
+Trading Experience
+
+Markets
+
+Trading Style
+
+Goals
+
+Timezone
+
+Risk Profile
+
+Save answers.
+
+Never show onboarding again after completion.
+
+====================================================
+
+DASHBOARD
+
+Include:
+
+Today's Profit/Loss
+
+Overall Profit
+
+Win Rate
+
+Trading Streak
+
+Monthly Performance
+
+Recent Trades
+
+AI Summary
+
+Quick Add Trade
+
+If there are no trades:
+
+Display an elegant empty state.
+
+====================================================
+
+TRADE JOURNAL
+
+Allow users to:
+
+Create
+
+Edit
+
+Delete
+
+Search
+
+Filter
+
+Fields:
+
+Asset
+
+Market
+
+Direction
+
+Entry
+
+Exit
+
+Stop Loss
+
+Take Profit
+
+Risk %
+
+Position Size
+
+Commission
+
+Notes
+
+Automatically calculate:
+
+Profit
+
+Loss
+
+Risk Reward
+
+Percentage Return
+
+Save everything securely.
+
+====================================================
+
+ANALYTICS
+
+Professional analytics including:
+
+Profit Curve
+
+Monthly Returns
+
+Win Rate
+
+Best Asset
+
+Worst Asset
+
+Average RR
+
+Trading Frequency
+
+Average Holding Time
+
+Professional interactive charts.
+
+====================================================
+
+AI COACH
+
+Use the Groq API.
+
+The API key is stored securely as:
+
+GROQ_API_KEY
+
+Never expose it.
+
+Backend requests only.
+
+Analyse ONLY the user's own trading journal.
+
+Provide:
+
+Strengths
+
+Weaknesses
+
+Repeated mistakes
+
+Risk analysis
+
+Trading psychology insights
+
+Consistency score
+
+Actionable improvements
+
+Weekly summaries
+
+Monthly summaries
+
+The AI should feel like a professional trading mentor.
+
+====================================================
+
+PROFILE
+
+Allow users to:
+
+Edit profile
+
+Change password
+
+Upload avatar
+
+Delete account
+
+Logout
+
+====================================================
+
+SETTINGS
+
+Include:
+
+Appearance
+
+Notifications
+
+AI Preferences
+
+Privacy
+
+Account
+
+====================================================
+
+FEEDBACK
+
+Create a feedback page allowing users to submit:
+
+Bug reports
+
+Feature requests
+
+General feedback
+
+Store feedback securely.
+
+====================================================
+
+RESPONSIVENESS
+
+Perfect support for:
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+====================================================
+
+USER EXPERIENCE
+
+Every page must include:
+
+Loading states
+
+Empty states
+
+Error handling
+
+Confirmation messages
+
+Smooth transitions
+
+====================================================
+
+PERFORMANCE
+
+Optimise:
+
+Database queries
+
+Rendering
+
+Animations
+
+Reusable components
+
+Loading speed
+
+====================================================
+
+SECURITY
+
+Protect:
+
+Authentication
+
+Database
+
+API routes
+
+Environment variables
+
+User information
+
+Never expose secrets.
+
+====================================================
+
+TESTING
+
+Before completion verify:
+
+Registration
+
+Login
+
+Password Reset
+
+Onboarding
+
+Dashboard
+
+Trade Journal
+
+Analytics
+
+AI Coach
+
+Profile
+
+Settings
+
+Feedback
+
+Logout
+
+Login Again
+
+Fix every critical bug before finishing.
+
+====================================================
+
+CODE QUALITY
+
+Write clean, scalable, production-quality code.
+
+Reuse components.
+
+Avoid duplicate code.
+
+Follow best practices.
+
+====================================================
+
+LOGO PLACEHOLDER
+
+At the top-left of the sidebar, reserve space for the FinTrack logo.
+
+For now:
+
+Display a clean placeholder icon with the text:
+
+FinTrack
+
+Structure the header so replacing the placeholder with a real SVG logo later requires changing only a single file or component.
+
+Do NOT permanently design the logo.
+
+Simply prepare the application so a professional logo can be dropped in later without affecting the layout.
+
+====================================================
+
+FINAL GOAL
+
+When finished, FinTrack should look like a premium desktop SaaS application inspired by the minimalist dark interface shown in the reference image.
+
+A completely new user should be able to:
+
+1. Register
+2. Login
+3. Complete onboarding
+4. Add trades
+5. View analytics
+6. Receive AI coaching
+7. Edit their profile
+8. Submit feedback
+9. Logout
+10. Login again
+
+without encountering any critical bugs.
+
+Finally, perform a complete QA audit, fix all critical issues, and deliver a polished Public Beta ready for real user testing.
