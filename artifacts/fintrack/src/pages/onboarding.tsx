@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSaveOnboarding } from '@workspace/api-client-react';
+import { useSaveOnboarding, getGetOnboardingQueryKey } from '@workspace/api-client-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,6 +14,7 @@ const STEPS = 6;
 
 export default function OnboardingPage() {
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const saveMutation = useSaveOnboarding();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -34,10 +36,11 @@ export default function OnboardingPage() {
   const handleComplete = () => {
     saveMutation.mutate({ data: formData }, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetOnboardingQueryKey() });
         toast.success("Welcome to FinTrack");
         setLocation('/dashboard');
       },
-      onError: (err) => {
+      onError: () => {
         toast.error("Failed to save profile. Please try again.");
       }
     });
