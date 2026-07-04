@@ -23,3 +23,6 @@ timeoutMs = 20000
 
 [userenv.shared]
 GROQ_API_KEY = "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"
+
+[nix]
+packages = ["zip"]
