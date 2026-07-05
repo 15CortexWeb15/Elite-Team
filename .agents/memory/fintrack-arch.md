@@ -1,49 +1,34 @@
 ---
 name: FinTrack Architecture
-description: Key decisions and conventions for the FinTrack trading journal SaaS app.
+description: Full-stack trading journal SaaS — key patterns, auth wiring, env setup, and backend conventions to keep consistent.
 ---
 
+# FinTrack Architecture
+
 ## Stack
-- Frontend: React + Vite at `/` (artifact: `fintrack`), Clerk auth, Wouter routing, TanStack Query, Recharts, shadcn/ui
-- Backend: Express 5 API server at port 8080, proxied as `/api/*`, built with esbuild
-- DB: PostgreSQL via Drizzle ORM (`lib/db`), schema in `lib/db/src/schema/`
-- Auth: Replit-managed Clerk tenant. Session cookies (no Bearer tokens).
+- pnpm monorepo: `artifacts/fintrack` (React 19 + Vite 7), `artifacts/api-server` (Express 5), `lib/db` (Drizzle + PostgreSQL)
+- Auth: External Clerk (user's own account, `pk_test`/`sk_test` dev keys)
+- AI: Groq API (`GROQ_API_KEY` secret)
 
-## Auth conventions
-- Frontend: `ClerkProvider` with `publishableKeyFromHost(hostname, VITE_CLERK_PUBLISHABLE_KEY)`. Proxy via `VITE_CLERK_PROXY_URL`.
-- Backend: `clerkMiddleware` + `requireAuth` helper in `artifacts/api-server/src/lib/auth.ts`
-- All API routes under `/api/` use `requireAuth`; `getUserId(req)` returns the Clerk userId.
-- Clerk proxy path is handled by `clerkProxyMiddleware` before the main CORS middleware.
+## Clerk wiring (critical)
 
-## Backend conventions
-- Route path prefix: Express routes do NOT include `/api` — the root router adds that prefix.
-- `res.status(N).json(data); return;` pattern — never `return res.status().json(...)`.
-- `req.params.id` is string — parse numeric IDs with `parseInt` / Zod schema.
-- Drizzle `numeric` columns store as strings; cast to String() on insert/update, Number() on read.
-- `toDateStr(d: string | Date)` helper in trades.ts converts date values to ISO `YYYY-MM-DD` strings for Drizzle's `date` columns with `mode: "string"`.
+- `CLERK_SECRET_KEY` and `GROQ_API_KEY` are **Replit Secrets** (encrypted, not in `.replit`)
+- `CLERK_PUBLISHABLE_KEY` and `VITE_CLERK_PUBLISHABLE_KEY` are plain env vars (public keys, safe in `.replit`)
+- The Clerk proxy middleware (`artifacts/api-server/src/middlewares/clerkProxyMiddleware.ts`) is **production-only** — it's a no-op in dev. `VITE_CLERK_PROXY_URL` should be unset in dev.
+- Frontend uses `import.meta.env.VITE_CLERK_PUBLISHABLE_KEY` directly (NOT `publishableKeyFromHost`) — using `publishableKeyFromHost` on a Replit domain causes it to resolve to Replit-managed Clerk infrastructure instead of the user's external Clerk tenant.
+- `VITE_CLERK_PUBLISHABLE_KEY` is injected via `define` in `artifacts/fintrack/vite.config.ts` because Vite 7 does not automatically expose `process.env.VITE_*` that aren't in `.env` files.
+- The `define` for `VITE_CLERK_PROXY_URL` must be omitted (not set to `''`) when unset — an empty string is treated as an explicit proxy URL by Clerk and breaks dev auth.
 
-## CORS
-- `artifacts/api-server/src/app.ts` uses an origin allowlist (not `origin: true`).
-- Allowlist sources: `ALLOWED_ORIGINS` env var (comma-separated) or auto-detect from `REPLIT_DEV_DOMAIN` / `REPLIT_DEPLOYMENT_URL`.
+**Why:** `publishableKeyFromHost` from `@clerk/react/internal` detects the `*.replit.dev` hostname and derives a Replit-managed Clerk key, ignoring the fallback external key entirely.
 
-**Why:** `origin: true` + `credentials: true` would reflect any origin and allow session-cookie-authenticated cross-origin requests — a data exposure risk.
+**How to apply:** Any time Clerk wiring is touched, verify these two points: (1) frontend uses direct env var, not hostname derivation; (2) `VITE_CLERK_PROXY_URL` define is conditional on the var being set.
 
-## DB indexes
-- `trades`: index on `user_id` and `trade_date`
-- `ai_analysis`: index on `user_id`
-- `feedback`: index on `user_id`
+## DB
 
-## AI Coach
-- Uses Groq API (`GROQ_API_KEY` secret), model `llama-3.3-70b-versatile`.
-- Route: `POST /api/ai/analysis`, `GET /api/ai/analysis/latest`
-- Fails gracefully with 503 if `GROQ_API_KEY` not set.
-- Prompt requests JSON response directly; falls back to regex JSON extraction if wrapped in markdown.
+- Schema in `lib/db/src/schema/` — after edits, run `pnpm --filter @workspace/db run push`
+- `DATABASE_URL` is runtime-managed by Replit — never set manually
 
-## Computed trade fields
-- `profitLoss`, `profitLossPercent`, `riskReward`, `result` computed server-side in `tradeCalc.ts` on every create/update.
-- Server stores computed values so analytics queries are fast (no runtime computation).
+## API codegen
 
-## Generated code
-- `lib/api-client-react/src/generated/` — React Query hooks, regenerate with codegen if OpenAPI spec changes.
-- `lib/api-zod/src/generated/` — Zod validation schemas for backend routes.
-- Codegen command: `pnpm run codegen` from workspace root.
+- Edit `lib/api-spec/openapi.yaml`, then run `pnpm --filter @workspace/api-spec run codegen`
+- Never edit `lib/api-client-react/` or `lib/api-zod/` directly
