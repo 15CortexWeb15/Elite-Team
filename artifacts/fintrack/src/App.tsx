@@ -21,6 +21,7 @@ import ProfilePage from "./pages/profile";
 import SettingsPage from "./pages/settings";
 import FeedbackPage from "./pages/feedback";
 import OnboardingPage from "./pages/onboarding";
+import StocksPage from "./pages/stocks";
 import NotFound from "./pages/not-found";
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -196,6 +197,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/dashboard" component={() => <ProtectedRoute component={DashboardPage} />} />
           <Route path="/journal" component={() => <ProtectedRoute component={JournalPage} />} />
           <Route path="/analytics" component={() => <ProtectedRoute component={AnalyticsPage} />} />
+          <Route path="/stocks" component={() => <ProtectedRoute component={StocksPage} />} />
           <Route path="/ai-coach" component={() => <ProtectedRoute component={AiCoachPage} />} />
           <Route path="/calendar" component={() => <ProtectedRoute component={CalendarPage} />} />
           <Route path="/profile" component={() => <ProtectedRoute component={ProfilePage} />} />

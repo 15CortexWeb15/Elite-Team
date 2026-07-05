@@ -11,6 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Search, Plus, Target, ArrowUpDown, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,6 +28,10 @@ export default function JournalPage() {
   const [direction, setDirection] = useState<string>('all');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [deletingTradeId, setDeletingTradeId] = useState<number | null>(null);
+
+  const queryClient = useQueryClient();
+  const deleteMutation = useDeleteTrade();
 
   const queryParams = {
     ...(search ? { search } : {}),
@@ -39,6 +48,22 @@ export default function JournalPage() {
   const handleOpenEdit = (trade: Trade) => {
     setEditingTrade(trade);
     setIsSheetOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingTradeId == null) return;
+    deleteMutation.mutate({ id: deletingTradeId }, {
+      onSuccess: () => {
+        toast.success('Trade deleted');
+        queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
+        setDeletingTradeId(null);
+      },
+      onError: () => {
+        toast.error('Failed to delete trade');
+        setDeletingTradeId(null);
+      },
+    });
   };
 
   return (
@@ -91,6 +116,7 @@ export default function JournalPage() {
                 <TableHead className="text-right">Risk</TableHead>
                 <TableHead className="text-right">P&L</TableHead>
                 <TableHead className="text-right">Return</TableHead>
+                <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -125,7 +151,7 @@ export default function JournalPage() {
                 trades.map(trade => (
                   <TableRow 
                     key={trade.id} 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    className="group cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => handleOpenEdit(trade)}
                   >
                     <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
@@ -149,6 +175,15 @@ export default function JournalPage() {
                     <TableCell className={`text-right font-mono ${cnProfitLoss(trade.profitLossPercent)}`}>
                       {trade.profitLossPercent ? formatPercent(trade.profitLossPercent) : '-'}
                     </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()} className="w-10 pr-3">
+                      <button
+                        onClick={() => setDeletingTradeId(trade.id)}
+                        className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Delete trade"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -162,6 +197,26 @@ export default function JournalPage() {
         onOpenChange={setIsSheetOpen} 
         trade={editingTrade} 
       />
+
+      <AlertDialog open={deletingTradeId !== null} onOpenChange={(open) => { if (!open) setDeletingTradeId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this trade?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the trade from your journal. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

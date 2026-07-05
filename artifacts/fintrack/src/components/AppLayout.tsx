@@ -24,7 +24,8 @@ import {
   User, 
   MessageSquare,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,6 +40,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Trade Journal", href: "/journal", icon: Table2 },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Live Markets", href: "/stocks", icon: TrendingUp },
     { name: "AI Coach", href: "/ai-coach", icon: BrainCircuit },
     { name: "Calendar", href: "/calendar", icon: CalendarDays },
   ];

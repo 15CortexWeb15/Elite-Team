@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGetDashboard, useGetProfitCurve } from '@workspace/api-client-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatMoney, formatPercent, formatNumber, cnProfitLoss } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowUpRight, TrendingUp, Target, Zap, Activity, BrainCircuit } from 'lucide-react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { ArrowUpRight, TrendingUp, Target, Zap, Activity, BrainCircuit, AreaChart as AreaIcon, LineChart as LineIcon, BarChart2 } from 'lucide-react';
+import {
+  Area, AreaChart,
+  Line, LineChart,
+  Bar, BarChart,
+  XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip,
+} from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 
+type ChartType = 'area' | 'line' | 'bar';
+const CHART_KEY = 'fintrack:dashboard-chart-type';
+
+const CHART_OPTIONS: { value: ChartType; icon: React.ReactNode; label: string }[] = [
+  { value: 'area', icon: <AreaIcon className="h-3.5 w-3.5" />, label: 'Area' },
+  { value: 'line', icon: <LineIcon className="h-3.5 w-3.5" />, label: 'Line' },
+  { value: 'bar',  icon: <BarChart2  className="h-3.5 w-3.5" />, label: 'Bar'  },
+];
+
 export default function DashboardPage() {
+  const [chartType, setChartType] = useState<ChartType>(
+    () => (localStorage.getItem(CHART_KEY) as ChartType | null) ?? 'area',
+  );
   const { data: dashboard, isLoading: loadingDash } = useGetDashboard();
   const { data: profitCurve, isLoading: loadingCurve } = useGetProfitCurve();
 
@@ -106,27 +123,79 @@ export default function DashboardPage() {
         {/* Performance Chart */}
         <Card className="col-span-1 lg:col-span-2 flex flex-col">
           <CardHeader className="border-b border-border py-4">
-            <CardTitle className="text-base font-semibold">Cumulative P&L</CardTitle>
-            <CardDescription>Your equity curve</CardDescription>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-base font-semibold">Cumulative P&L</CardTitle>
+                <CardDescription>Your equity curve</CardDescription>
+              </div>
+              <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted/40 p-0.5 flex-shrink-0">
+                {CHART_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    onClick={() => { setChartType(o.value); localStorage.setItem(CHART_KEY, o.value); }}
+                    title={o.label}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded font-medium transition-all ${
+                      chartType === o.value
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {o.icon}
+                    <span className="hidden sm:inline">{o.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-6 flex-1 min-h-[250px]">
             {profitCurve && profitCurve.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={profitCurve}>
-                  <defs>
-                    <linearGradient id="colorPl" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--profit))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--profit))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
-                    formatter={(val: number) => [formatMoney(val), "Cumulative P&L"]}
-                    labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                  />
-                  <Area type="monotone" dataKey="cumulativePL" stroke="hsl(var(--profit))" fillOpacity={1} fill="url(#colorPl)" />
-                </AreaChart>
+                {chartType === 'line' ? (
+                  <LineChart data={profitCurve}>
+                    <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} />
+                    <YAxis tickFormatter={(v) => formatMoney(v)} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={72} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(val: number) => [formatMoney(val), 'Cumulative P&L']}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    <Line type="monotone" dataKey="cumulativePL" stroke="hsl(var(--profit))" strokeWidth={2} dot={false} />
+                  </LineChart>
+                ) : chartType === 'bar' ? (
+                  <BarChart data={profitCurve}>
+                    <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} />
+                    <YAxis tickFormatter={(v) => formatMoney(v)} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={72} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(val: number) => [formatMoney(val), 'Cumulative P&L']}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    <Bar dataKey="cumulativePL" fill="hsl(var(--profit))" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                ) : (
+                  <AreaChart data={profitCurve}>
+                    <defs>
+                      <linearGradient id="colorPl" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="hsl(var(--profit))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--profit))" stopOpacity={0}   />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} />
+                    <YAxis tickFormatter={(v) => formatMoney(v)} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={72} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }}
+                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(val: number) => [formatMoney(val), 'Cumulative P&L']}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    <Area type="monotone" dataKey="cumulativePL" stroke="hsl(var(--profit))" fillOpacity={1} fill="url(#colorPl)" />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground h-full">
