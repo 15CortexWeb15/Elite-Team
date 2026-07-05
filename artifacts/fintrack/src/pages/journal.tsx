@@ -303,8 +303,9 @@ function TradeFormSheet({ isOpen, onOpenChange, trade }: { isOpen: boolean, onOp
       queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
       onOpenChange(false);
-    }).catch(() => {
-      toast.error("Failed to save trade.");
+    }).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to save trade: ${msg}`);
     });
   };
 
