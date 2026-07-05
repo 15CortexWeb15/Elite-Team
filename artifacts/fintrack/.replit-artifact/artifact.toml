@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "FinTrack"
+title = "Roxel"
 version = "1.0.0"
 id = "artifacts/fintrack"
 router = "path"
@@ -8,7 +8,7 @@ router = "path"
 [[services]]
 name = "web"
 paths = [ "/" ]
-localPort = 23162
+localPort = 5173
 
 [services.development]
 run = "pnpm --filter @workspace/fintrack run dev"
@@ -23,5 +23,5 @@ from = "/*"
 to = "/index.html"
 
 [services.env]
-PORT = "23162"
+PORT = "5173"
 BASE_PATH = "/"
