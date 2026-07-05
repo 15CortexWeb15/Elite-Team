@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
-import { publishableKeyFromHost } from '@clerk/react/internal';
 import { dark } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
 import { queryClient } from "./lib/queryClient";
@@ -24,10 +23,7 @@ import FeedbackPage from "./pages/feedback";
 import OnboardingPage from "./pages/onboarding";
 import NotFound from "./pages/not-found";
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");

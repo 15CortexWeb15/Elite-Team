@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "bash"]
+modules = ["nodejs-20", "web", "bash", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -22,7 +22,8 @@ timeoutMs = 20000
 [userenv]
 
 [userenv.shared]
-GROQ_API_KEY = "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"
+CLERK_PUBLISHABLE_KEY = "pk_test_bm90ZWQtZ2VsZGluZy03My5jbGVyay5hY2NvdW50cy5kZXYk"
+VITE_CLERK_PUBLISHABLE_KEY = "pk_test_bm90ZWQtZ2VsZGluZy03My5jbGVyay5hY2NvdW50cy5kZXYk"
 
 [nix]
 packages = ["zip"]

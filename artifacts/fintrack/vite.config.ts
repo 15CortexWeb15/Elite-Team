@@ -29,6 +29,18 @@ if (!basePath) {
 
 export default defineConfig({
   base: basePath,
+  // Explicitly pass VITE_ env vars from process.env so they are available
+  // via import.meta.env regardless of whether they come from a .env file.
+  define: {
+    'import.meta.env.VITE_CLERK_PUBLISHABLE_KEY': JSON.stringify(
+      process.env.VITE_CLERK_PUBLISHABLE_KEY ?? process.env.CLERK_PUBLISHABLE_KEY ?? '',
+    ),
+    // Only define when explicitly set — passing an empty string tells Clerk
+    // to use a proxy, which breaks dev. Omitting it leaves the value undefined.
+    ...(process.env.VITE_CLERK_PROXY_URL
+      ? { 'import.meta.env.VITE_CLERK_PROXY_URL': JSON.stringify(process.env.VITE_CLERK_PROXY_URL) }
+      : {}),
+  },
   plugins: [
     react(),
     tailwindcss(),
