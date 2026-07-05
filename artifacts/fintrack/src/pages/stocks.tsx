@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Search, Plus, X, TrendingUp, TrendingDown,
   Activity, RefreshCw, LineChart as LineIcon, BarChart2, AreaChartIcon,
+  CandlestickChart as CandleIcon,
 } from 'lucide-react';
 import {
   AreaChart, Area,
@@ -15,6 +16,7 @@ import {
   BarChart, Bar,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
+import { createChart, ColorType, CandlestickSeries, type ISeriesApi } from 'lightweight-charts';
 import { format } from 'date-fns';
 
 // ─── API helpers ─────────────────────────────────────────────────────────────
@@ -36,7 +38,15 @@ type Quote = {
   currency: string;
 };
 
-type HistoryPoint = { time: number; price: number };
+type HistoryPoint = {
+  time: number;
+  price: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
 
 type SearchResult = {
   symbol: string;
@@ -65,7 +75,7 @@ function saveWatchlist(wl: string[]) {
   localStorage.setItem(WATCHLIST_KEY, JSON.stringify(wl));
 }
 
-type ChartType = 'area' | 'line' | 'bar';
+type ChartType = 'area' | 'line' | 'bar' | 'candle';
 type Range = '1d' | '5d' | '1mo' | '3mo';
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -73,11 +83,9 @@ type Range = '1d' | '5d' | '1mo' | '3mo';
 function fmtChange(v: number) {
   return (v >= 0 ? '+' : '') + v.toFixed(2);
 }
-
 function fmtPct(v: number) {
   return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
 }
-
 function fmtCompact(n?: number) {
   if (!n) return '—';
   if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
@@ -85,23 +93,9 @@ function fmtCompact(n?: number) {
   if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
   return n.toLocaleString();
 }
-
 function fmtVol(n?: number) { return n ? fmtCompact(n) : '—'; }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const RANGES: { value: Range; label: string }[] = [
-  { value: '1d', label: '1D' },
-  { value: '5d', label: '5D' },
-  { value: '1mo', label: '1M' },
-  { value: '3mo', label: '3M' },
-];
-
-const CHART_TYPES: { value: ChartType; icon: React.ReactNode; label: string }[] = [
-  { value: 'area', icon: <AreaChartIcon className="h-3.5 w-3.5" />, label: 'Area' },
-  { value: 'line', icon: <LineIcon className="h-3.5 w-3.5" />, label: 'Line' },
-  { value: 'bar',  icon: <BarChart2  className="h-3.5 w-3.5" />, label: 'Bar'  },
-];
+// ─── Toggle group ─────────────────────────────────────────────────────────────
 
 function ToggleGroup<T extends string>({
   options,
@@ -132,6 +126,102 @@ function ToggleGroup<T extends string>({
   );
 }
 
+// ─── Candlestick chart (lightweight-charts) ───────────────────────────────────
+
+function CandlestickChart({ points }: { points: HistoryPoint[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
+  const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const el = containerRef.current;
+    const chart = createChart(el, {
+      layout: {
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: 'hsl(215 20% 55%)',
+        fontSize: 11,
+      },
+      grid: {
+        vertLines: { color: 'hsl(215 20% 18%)' },
+        horzLines: { color: 'hsl(215 20% 18%)' },
+      },
+      crosshair: { mode: 1 },
+      rightPriceScale: { borderColor: 'hsl(215 20% 18%)' },
+      timeScale: { borderColor: 'hsl(215 20% 18%)', timeVisible: true, secondsVisible: false },
+      width: el.clientWidth,
+      height: 300,
+    });
+
+    const series = chart.addSeries(CandlestickSeries, {
+      upColor: 'hsl(142 71% 45%)',
+      downColor: 'hsl(0 72% 51%)',
+      borderUpColor: 'hsl(142 71% 45%)',
+      borderDownColor: 'hsl(0 72% 51%)',
+      wickUpColor: 'hsl(142 71% 45%)',
+      wickDownColor: 'hsl(0 72% 51%)',
+    });
+
+    chartRef.current = chart;
+    seriesRef.current = series;
+
+    const ro = new ResizeObserver(() => {
+      chart.applyOptions({ width: el.clientWidth });
+    });
+    ro.observe(el);
+
+    return () => {
+      ro.disconnect();
+      chart.remove();
+      chartRef.current = null;
+      seriesRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!seriesRef.current || !points.length) return;
+    const candles = points
+      .map((p) => ({
+        time: Math.floor(p.time / 1000) as any,
+        open: p.open,
+        high: p.high,
+        low: p.low,
+        close: p.close,
+      }))
+      // lightweight-charts requires strictly ascending time; dedupe by taking last value per second
+      .reduce<{ time: number; open: number; high: number; low: number; close: number }[]>((acc, c) => {
+        if (acc.length && acc[acc.length - 1].time === c.time) {
+          acc[acc.length - 1] = c;
+        } else {
+          acc.push(c);
+        }
+        return acc;
+      }, []);
+
+    seriesRef.current.setData(candles as any);
+    chartRef.current?.timeScale().fitContent();
+  }, [points]);
+
+  return <div ref={containerRef} className="w-full" style={{ height: 300 }} />;
+}
+
+// ─── Recharts price chart (area / line / bar) ─────────────────────────────────
+
+const RANGES: { value: Range; label: string }[] = [
+  { value: '1d', label: '1D' },
+  { value: '5d', label: '5D' },
+  { value: '1mo', label: '1M' },
+  { value: '3mo', label: '3M' },
+];
+
+const CHART_TYPES: { value: ChartType; icon: React.ReactNode; label: string }[] = [
+  { value: 'candle', icon: <CandleIcon className="h-3.5 w-3.5" />, label: 'Candle' },
+  { value: 'area',   icon: <AreaChartIcon className="h-3.5 w-3.5" />, label: 'Area'  },
+  { value: 'line',   icon: <LineIcon      className="h-3.5 w-3.5" />, label: 'Line'  },
+  { value: 'bar',    icon: <BarChart2     className="h-3.5 w-3.5" />, label: 'Bar'   },
+];
+
 function PriceChart({
   points,
   type,
@@ -143,6 +233,8 @@ function PriceChart({
   currency: string;
   range: Range;
 }) {
+  if (type === 'candle') return <CandlestickChart points={points} />;
+
   const isUp = points.length > 1 && points[points.length - 1].price >= points[0].price;
   const color = isUp ? 'hsl(var(--profit))' : 'hsl(var(--loss))';
 
@@ -163,10 +255,7 @@ function PriceChart({
     );
   };
 
-  const shared = {
-    data: points,
-    margin: { top: 8, right: 8, left: 0, bottom: 0 },
-  };
+  const shared = { data: points, margin: { top: 8, right: 8, left: 0, bottom: 0 } };
   const xAxis = (
     <XAxis
       dataKey="time"
@@ -217,6 +306,8 @@ function PriceChart({
     </ResponsiveContainer>
   );
 }
+
+// ─── Quote card ───────────────────────────────────────────────────────────────
 
 function QuoteCard({
   quote,
@@ -293,7 +384,7 @@ function SearchDropdown({
             <span className="text-muted-foreground truncate">{r.name}</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Badge variant="outline" className="text-[10px] py-0">{r.exchange}</Badge>
+            <Badge variant="outline" className="text-[10px] py-0">{r.type}</Badge>
             <Plus className="h-3.5 w-3.5 text-muted-foreground" />
           </div>
         </button>
@@ -309,13 +400,13 @@ export default function StocksPage() {
   const [selected, setSelected] = useState<string>(watchlist[0] ?? 'AAPL');
   const [range, setRange] = useState<Range>('1d');
   const [chartType, setChartType] = useState<ChartType>(
-    () => (localStorage.getItem(CHART_TYPE_KEY) as ChartType | null) ?? 'area',
+    () => (localStorage.getItem(CHART_TYPE_KEY) as ChartType | null) ?? 'candle',
   );
   const [search, setSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Persist chart type
+  // Persist chart type preference
   useEffect(() => { localStorage.setItem(CHART_TYPE_KEY, chartType); }, [chartType]);
 
   // Close search dropdown on outside click
@@ -329,16 +420,16 @@ export default function StocksPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Live quotes — refresh every 10 s
+  // Live quotes — refresh every 5 s
   const { data: quotes = [], isLoading: quotesLoading, dataUpdatedAt, refetch } = useQuery<Quote[]>({
     queryKey: ['stocks-quotes', watchlist],
     queryFn: () => apiFetch<Quote[]>(`/api/stocks/quote?symbols=${encodeURIComponent(watchlist.join(','))}`),
-    refetchInterval: 10_000,
+    refetchInterval: 5_000,
     enabled: watchlist.length > 0,
-    staleTime: 8_000,
+    staleTime: 4_000,
   });
 
-  // History for selected symbol
+  // History for selected symbol — 15 s for intraday, 60 s for longer ranges
   const { data: history, isLoading: historyLoading } = useQuery<{
     points: HistoryPoint[];
     currency: string;
@@ -347,9 +438,9 @@ export default function StocksPage() {
     queryKey: ['stocks-history', selected, range],
     queryFn: () =>
       apiFetch(`/api/stocks/history/${encodeURIComponent(selected)}?range=${range}`),
-    refetchInterval: range === '1d' ? 30_000 : 120_000,
+    refetchInterval: range === '1d' ? 15_000 : 60_000,
     enabled: !!selected,
-    staleTime: 25_000,
+    staleTime: 12_000,
   });
 
   // Search results
@@ -392,9 +483,9 @@ export default function StocksPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Live Markets</h1>
           <p className="text-muted-foreground mt-1">
-            Real-time quotes — auto-refreshes every 10 s.
+            Powered by Finnhub — auto-refreshes every 5 s.
             {lastUpdated && (
-              <span className="ml-2 text-xs font-mono">Last update: {lastUpdated}</span>
+              <span className="ml-2 text-xs font-mono opacity-60">Last: {lastUpdated}</span>
             )}
           </p>
         </div>

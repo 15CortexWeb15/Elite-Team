@@ -113,7 +113,7 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  const { symbol } = req.params;
+  const symbol = Array.isArray(req.params.symbol) ? req.params.symbol[0] : req.params.symbol;
   const VALID_RANGES = new Set(['1d', '5d', '1mo', '3mo', '6mo', '1y']);
   const range = VALID_RANGES.has(req.query.range as string) ? (req.query.range as string) : '1d';
 
@@ -145,8 +145,25 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
       return;
     }
 
-    const points = data.t.map((ts, i) => ({ time: ts * 1000, price: data.c[i] }))
-      .filter(p => p.price != null && !isNaN(p.price));
+    const isFiniteNum = (n: unknown): n is number => typeof n === 'number' && isFinite(n);
+    const points = data.t
+      .map((ts, i) => ({
+        time: ts * 1000,
+        price: data.c[i],
+        open: data.o[i],
+        high: data.h[i],
+        low: data.l[i],
+        close: data.c[i],
+        volume: data.v?.[i] ?? 0,
+      }))
+      .filter(p =>
+        isFiniteNum(p.time) &&
+        isFiniteNum(p.open) &&
+        isFiniteNum(p.high) &&
+        isFiniteNum(p.low) &&
+        isFiniteNum(p.close),
+      )
+      .sort((a, b) => a.time - b.time);
 
     // Current price from quote cache or last candle
     const cached = quoteCache.get(symbol);
