@@ -4,8 +4,8 @@ A professional trading journal SaaS — dense, distraction-free environment for 
 
 ## Run & Operate
 
-- Frontend (Vite dev): managed by the `artifacts/fintrack: web` workflow
-- API server (Express): managed by the `artifacts/api-server: API Server` workflow
+- Frontend (Vite dev): managed by the `FinTrack Frontend` workflow
+- API server (Express): managed by the `API Server` workflow
 - `pnpm install` — install all workspace dependencies
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
