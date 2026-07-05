@@ -1,54 +1,41 @@
 import { Router } from 'express';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
 import { requireAuth } from '../lib/auth';
 
 const router = Router();
 
-const FINNHUB_KEY = process.env.FINNHUB_API_KEY ?? '';
-const BASE = 'https://finnhub.io/api/v1';
+// yahoo-finance2 v3 requires instantiation
+const yf = new YahooFinance();
 
-async function fhFetch<T>(path: string): Promise<T> {
-  if (!FINNHUB_KEY) throw new Error('FINNHUB_API_KEY not configured');
-  const url = `${BASE}${path}${path.includes('?') ? '&' : '?'}token=${FINNHUB_KEY}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
-  if (!res.ok) throw new Error(`Finnhub HTTP ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-// ─── Server-side cache (15 s TTL) ────────────────────────────────────────────
+// ─── Server-side cache ────────────────────────────────────────────────────────
 
 type CachedQuote = { data: Record<string, unknown>; expiresAt: number };
 const quoteCache = new Map<string, CachedQuote>();
-const CACHE_TTL = 15_000;
+const QUOTE_TTL = 15_000;
 
 async function fetchOneQuote(symbol: string): Promise<Record<string, unknown> | null> {
   const hit = quoteCache.get(symbol);
   if (hit && Date.now() < hit.expiresAt) return hit.data;
 
   try {
-    // Finnhub /quote returns: c (current), d (change), dp (change%), h, l, o, pc (prevClose), t
-    const q = await fhFetch<{
-      c: number; d: number; dp: number; h: number; l: number; o: number; pc: number; t: number;
-    }>(`/quote?symbol=${encodeURIComponent(symbol)}`);
+    const q = await yf.quote(symbol, {}, { validateResult: false });
+    if (!q || !q.regularMarketPrice) return hit?.data ?? null;
 
-    if (!q.c) return hit?.data ?? null;  // 0 price = symbol not found
-
-    // Get company profile for name (cached separately if needed — we skip it for speed)
     const quote: Record<string, unknown> = {
-      symbol,
-      name: symbol,   // name filled in via profile endpoint below if available
-      price: q.c,
-      change: q.d,
-      changePercent: q.dp,
-      dayHigh: q.h,
-      dayLow: q.l,
-      open: q.o,
-      prevClose: q.pc,
-      volume: 0,       // Finnhub /quote doesn't include volume; we leave it 0
-      currency: 'USD',
+      symbol: q.symbol ?? symbol,
+      name: q.shortName ?? q.longName ?? symbol,
+      price: q.regularMarketPrice,
+      change: q.regularMarketChange ?? 0,
+      changePercent: q.regularMarketChangePercent ?? 0,
+      dayHigh: q.regularMarketDayHigh ?? 0,
+      dayLow: q.regularMarketDayLow ?? 0,
+      open: q.regularMarketOpen ?? 0,
+      prevClose: q.regularMarketPreviousClose ?? 0,
+      volume: q.regularMarketVolume ?? 0,
+      currency: q.currency ?? 'USD',
     };
 
-    quoteCache.set(symbol, { data: quote, expiresAt: Date.now() + CACHE_TTL });
+    quoteCache.set(symbol, { data: quote, expiresAt: Date.now() + QUOTE_TTL });
     return quote;
   } catch (err) {
     if (hit) return hit.data;
@@ -59,23 +46,17 @@ async function fetchOneQuote(symbol: string): Promise<Record<string, unknown> | 
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
-// GET /api/stocks/quote?symbols=AAPL,TSLA,BTC
+// GET /api/stocks/quote?symbols=AAPL,TSLA,BTC-USD
 router.get('/quote', requireAuth, async (req, res): Promise<void> => {
-  if (!FINNHUB_KEY) {
-    res.status(503).json({ error: 'FINNHUB_API_KEY not set — please add it to Replit Secrets' });
-    return;
-  }
-
   const raw = (req.query.symbols as string | undefined)?.trim();
   if (!raw) { res.status(400).json({ error: 'symbols query param required' }); return; }
 
   const symbols = [...new Set(raw.split(',').map(s => s.trim().toUpperCase()).filter(Boolean))].slice(0, 20);
 
-  // Sequential fetches with 60 ms gaps to stay comfortably under 60 req/min
   const results: (Record<string, unknown> | null)[] = [];
   for (let i = 0; i < symbols.length; i++) {
     results.push(await fetchOneQuote(symbols[i]));
-    if (i < symbols.length - 1) await new Promise(r => setTimeout(r, 60));
+    if (i < symbols.length - 1) await new Promise(r => setTimeout(r, 80));
   }
 
   res.json(results.filter(Boolean));
@@ -83,22 +64,28 @@ router.get('/quote', requireAuth, async (req, res): Promise<void> => {
 
 // GET /api/stocks/search?q=apple
 router.get('/search', requireAuth, async (req, res): Promise<void> => {
-  if (!FINNHUB_KEY) { res.json([]); return; }
   const q = (req.query.q as string | undefined)?.trim();
   if (!q) { res.json([]); return; }
+
   try {
-    const data = await fhFetch<{ count: number; result: { description: string; displaySymbol: string; symbol: string; type: string }[] }>(
-      `/search?q=${encodeURIComponent(q)}`,
-    );
+    const data = await yf.search(q, {}, { validateResult: false });
+    const quotes = (data.quotes ?? []) as Array<{
+      symbol?: string;
+      shortname?: string;
+      longname?: string;
+      exchDisp?: string;
+      quoteType?: string;
+    }>;
+
     res.json(
-      (data.result ?? [])
-        .filter(r => ['Common Stock', 'ETP', 'Crypto', 'Forex'].includes(r.type))
+      quotes
+        .filter(r => r.symbol && ['EQUITY', 'ETF', 'CRYPTOCURRENCY', 'CURRENCY', 'FUTURE'].includes(r.quoteType ?? ''))
         .slice(0, 8)
         .map(r => ({
           symbol: r.symbol,
-          name: r.description,
-          exchange: '',
-          type: r.type,
+          name: r.shortname ?? r.longname ?? r.symbol,
+          exchange: r.exchDisp ?? '',
+          type: r.quoteType ?? '',
         })),
     );
   } catch (err) {
@@ -113,7 +100,6 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
   const VALID_RANGES = new Set(['1d', '5d', '1mo', '3mo', '6mo', '1y']);
   const range = VALID_RANGES.has(req.query.range as string) ? (req.query.range as string) : '1d';
 
-  // Yahoo Finance intervals
   const intervalMap: Record<string, '5m' | '15m' | '60m' | '1d' | '1wk'> = {
     '1d': '5m', '5d': '15m', '1mo': '60m', '3mo': '1d', '6mo': '1d', '1y': '1wk',
   };
@@ -127,7 +113,7 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
   };
 
   try {
-    const result = await yahooFinance.chart(symbol, {
+    const result = await yf.chart(symbol, {
       period1: fromMap[range],
       interval: intervalMap[range],
     }, { validateResult: false });
@@ -159,6 +145,11 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
       )
       .sort((a, b) => a.time - b.time);
 
+    if (!points.length) {
+      res.status(404).json({ error: 'No valid data points for this symbol / range' });
+      return;
+    }
+
     const cached = quoteCache.get(symbol);
     const regularMarketPrice =
       (cached?.data.price as number | undefined) ??
@@ -168,7 +159,7 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
     res.json({ symbol, currency: result.meta?.currency ?? 'USD', regularMarketPrice, points });
   } catch (err) {
     console.error(`[stocks] history failed for ${symbol}:`, (err as Error).message);
-    res.status(502).json({ error: 'Failed to fetch history' });
+    res.status(502).json({ error: 'Failed to fetch history from Yahoo Finance' });
   }
 });
 
