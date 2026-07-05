@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-20", "web", "bash"]
 
 [deployment]
 router = "application"
@@ -26,3 +26,4 @@ GROQ_API_KEY = "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"
 
 [nix]
 packages = ["zip"]
+channel = "stable-25_05"
