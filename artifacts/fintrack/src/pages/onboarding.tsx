@@ -4,65 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-// Common IANA timezones grouped for the dropdown
-const TIMEZONES = [
-  // Americas
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Phoenix",
-  "America/Anchorage",
-  "America/Honolulu",
-  "America/Toronto",
-  "America/Vancouver",
-  "America/Mexico_City",
-  "America/Bogota",
-  "America/Lima",
-  "America/Santiago",
-  "America/Sao_Paulo",
-  "America/Argentina/Buenos_Aires",
-  // Europe
-  "Europe/London",
-  "Europe/Dublin",
-  "Europe/Lisbon",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Europe/Amsterdam",
-  "Europe/Zurich",
-  "Europe/Rome",
-  "Europe/Madrid",
-  "Europe/Stockholm",
-  "Europe/Warsaw",
-  "Europe/Prague",
-  "Europe/Vienna",
-  "Europe/Athens",
-  "Europe/Helsinki",
-  "Europe/Moscow",
-  // Asia / Pacific
-  "Asia/Dubai",
-  "Asia/Kolkata",
-  "Asia/Dhaka",
-  "Asia/Bangkok",
-  "Asia/Singapore",
-  "Asia/Hong_Kong",
-  "Asia/Shanghai",
-  "Asia/Tokyo",
-  "Asia/Seoul",
-  "Australia/Sydney",
-  "Australia/Melbourne",
-  "Australia/Brisbane",
-  "Pacific/Auckland",
-  "Pacific/Honolulu",
-  // Africa
-  "Africa/Cairo",
-  "Africa/Johannesburg",
-  "Africa/Lagos",
-  "Africa/Nairobi",
-  // UTC
-  "UTC",
-];
+import { TIMEZONES } from '@/lib/timezones';
 import { useSaveOnboarding, getGetOnboardingQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
