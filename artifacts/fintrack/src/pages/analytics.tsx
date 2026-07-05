@@ -85,7 +85,10 @@ export default function AnalyticsPage() {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">Not enough data</div>
+              <div className="h-full flex flex-col items-center justify-center text-center gap-2 px-8">
+                <p className="text-muted-foreground font-medium">No equity curve yet</p>
+                <p className="text-sm text-muted-foreground/70 max-w-sm">Your cumulative P&L curve will appear here once you log your first closed trades. It shows how your account balance grows (or shrinks) over time.</p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -126,7 +129,10 @@ export default function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">Not enough data</div>
+              <div className="h-full flex flex-col items-center justify-center text-center gap-2 px-8">
+                <p className="text-muted-foreground font-medium">No monthly data yet</p>
+                <p className="text-sm text-muted-foreground/70 max-w-sm">Monthly P&L bars will appear here as you log trades across different months — great for spotting seasonal patterns.</p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -170,7 +176,10 @@ export default function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">Not enough data</div>
+              <div className="h-full flex flex-col items-center justify-center text-center gap-2 px-8">
+                <p className="text-muted-foreground font-medium">No day-of-week data yet</p>
+                <p className="text-sm text-muted-foreground/70 max-w-sm">Once you have trades logged, this chart reveals which days of the week you perform best — so you can trade more on your strongest days.</p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -216,7 +225,10 @@ export default function AnalyticsPage() {
                 </table>
               </div>
             ) : (
-              <div className="p-8 text-center text-muted-foreground">Not enough data</div>
+              <div className="p-8 flex flex-col items-center justify-center text-center gap-2">
+                <p className="text-muted-foreground font-medium">No asset data yet</p>
+                <p className="text-sm text-muted-foreground/70 max-w-md">This table will break down your win rate, average R/R, and net P&L by instrument — showing you exactly which assets you have a statistical edge in.</p>
+              </div>
             )}
           </CardContent>
         </Card>

@@ -35,25 +35,72 @@ app.use(
 
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-  : [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      `https://${process.env.REPLIT_DEV_DOMAIN}`,
-      process.env.REPLIT_DEPLOYMENT_URL,
-    ].filter(Boolean) as string[];
+// Build exact-match origin set.
+// REPLIT_DOMAINS is a comma-separated list of domains assigned to this repl
+// (present in both dev and deployment environments).
+function buildAllowedOrigins(): Set<string> {
+  const origins = new Set<string>();
+
+  // Manually overridden allowlist takes priority
+  if (process.env.ALLOWED_ORIGINS) {
+    for (const o of process.env.ALLOWED_ORIGINS.split(",")) {
+      const t = o.trim();
+      if (t) origins.add(t);
+    }
+    return origins;
+  }
+
+  // Local dev
+  origins.add("http://localhost:5173");
+  origins.add("http://localhost:3000");
+
+  // Replit dev-preview domain
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    origins.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  }
+
+  // Replit deployment URL (explicit, if set)
+  if (process.env.REPLIT_DEPLOYMENT_URL) {
+    // Strip trailing slashes, ensure it is an origin not a full URL
+    try {
+      origins.add(new URL(process.env.REPLIT_DEPLOYMENT_URL).origin);
+    } catch {
+      origins.add(process.env.REPLIT_DEPLOYMENT_URL.replace(/\/+$/, ""));
+    }
+  }
+
+  // REPLIT_DOMAINS — comma-separated hostnames for this specific repl
+  // (covers both *.replit.dev and *.replit.app deployment domains)
+  if (process.env.REPLIT_DOMAINS) {
+    for (const domain of process.env.REPLIT_DOMAINS.split(",")) {
+      const d = domain.trim();
+      if (d) origins.add(`https://${d}`);
+    }
+  }
+
+  return origins;
+}
+
+const ALLOWED_ORIGINS = buildAllowedOrigins();
+
+function isOriginAllowed(origin: string): boolean {
+  try {
+    // Normalise to bare origin (scheme + host + port) before comparing
+    const normalised = new URL(origin).origin;
+    return ALLOWED_ORIGINS.has(normalised);
+  } catch {
+    return false;
+  }
+}
 
 app.use(
   cors({
     credentials: true,
     origin: (origin, callback) => {
-      // Allow non-browser requests (curl, server-to-server) and allowlisted origins
-      if (!origin || ALLOWED_ORIGINS.some((o) => origin.startsWith(o))) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
-      }
+      // Allow non-browser requests (curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (isOriginAllowed(origin)) return callback(null, true);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
   }),
 );

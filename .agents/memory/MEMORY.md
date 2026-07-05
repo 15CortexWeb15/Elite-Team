@@ -1,1 +1,2 @@
 - [FinTrack Architecture](fintrack-arch.md) — full-stack trading journal SaaS; key patterns, auth wiring, and backend conventions to keep consistent.
+- [CORS & deployment origin fix](cors-deployment-origin.md) — use REPLIT_DOMAINS (not REPLIT_DEPLOYMENT_URL) for exact-match allowlist; never wildcard *.replit.app with credentials.
