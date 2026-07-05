@@ -10,7 +10,7 @@ import { Monitor, Moon, Sun, DollarSign, BarChart2, Keyboard } from 'lucide-reac
 import { toast } from 'sonner';
 
 // ── Local-only preferences stored in localStorage ──────────────────────────
-const LS_KEY = 'fintrack:display-prefs';
+const LS_KEY = 'roxel:display-prefs';
 
 type DisplayPrefs = {
   currency: string;
@@ -77,7 +77,7 @@ export default function SettingsPage() {
             <Monitor className="h-4 w-4" />
             Appearance
           </CardTitle>
-          <CardDescription>Customize how FinTrack looks on your device.</CardDescription>
+          <CardDescription>Customize how Roxel looks on your device.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
@@ -254,7 +254,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            About FinTrack
+            About Roxel
             <Badge variant="secondary" className="text-xs font-mono">Beta</Badge>
           </CardTitle>
         </CardHeader>

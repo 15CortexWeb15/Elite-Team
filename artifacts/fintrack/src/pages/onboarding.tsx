@@ -41,7 +41,7 @@ export default function OnboardingPage() {
     saveMutation.mutate({ data: formData }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetOnboardingQueryKey() });
-        toast.success("Welcome to FinTrack");
+        toast.success("Welcome to Roxel");
         setLocation('/dashboard');
       },
       onError: () => {
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
               {step === 1 && "How long have you been actively trading?"}
               {step === 2 && "What are your primary markets?"}
               {step === 3 && "How would you describe your approach?"}
-              {step === 4 && "What are you looking to achieve with FinTrack?"}
+              {step === 4 && "What are you looking to achieve with Roxel?"}
               {step === 5 && "Set your local timezone for accurate reporting."}
               {step === 6 && "How much do you typically risk per trade?"}
             </CardDescription>

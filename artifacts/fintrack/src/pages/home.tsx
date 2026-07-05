@@ -73,7 +73,7 @@ export default function HomePage() {
             <div className="bg-primary text-primary-foreground h-8 w-8 rounded-md flex items-center justify-center">
               <BarChart3 className="h-4 w-4" />
             </div>
-            <span className="font-bold text-xl tracking-tight">FinTrack</span>
+            <span className="font-bold text-xl tracking-tight">Roxel</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
@@ -108,7 +108,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-            FinTrack is a dense, distraction-free environment for serious traders.
+            Roxel is a dense, distraction-free environment for serious traders.
             Track performance, discover your edge, and let AI surface the patterns you're missing.
           </p>
 
@@ -197,12 +197,12 @@ export default function HomePage() {
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
               <div>
-                <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Why FinTrack</p>
+                <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Why Roxel</p>
                 <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
                   Designed to make you a better trader.
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-8">
-                  Most traders fail not because of their strategy — but because of undocumented behavioral patterns they can't see. FinTrack makes them visible.
+                  Most traders fail not because of their strategy — but because of undocumented behavioral patterns they can't see. Roxel makes them visible.
                 </p>
                 <Button size="lg" className="gap-2 h-12 px-8" asChild>
                   <Link href="/sign-up">
@@ -229,7 +229,7 @@ export default function HomePage() {
             Ready to trade with clarity?
           </h2>
           <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
-            Join traders who use FinTrack to hold themselves accountable, remove bias, and compound their edge systematically.
+            Join traders who use Roxel to hold themselves accountable, remove bias, and compound their edge systematically.
           </p>
           <Button size="lg" className="h-12 px-10 text-base gap-2" asChild>
             <Link href="/sign-up">
@@ -247,9 +247,9 @@ export default function HomePage() {
             <div className="bg-primary text-primary-foreground h-6 w-6 rounded flex items-center justify-center">
               <BarChart3 className="h-3.5 w-3.5" />
             </div>
-            <span className="font-semibold text-foreground">FinTrack</span>
+            <span className="font-semibold text-foreground">Roxel</span>
           </div>
-          <p>&copy; {new Date().getFullYear()} FinTrack. Built for serious traders.</p>
+          <p>&copy; {new Date().getFullYear()} Roxel. Built for serious traders.</p>
           <div className="flex items-center gap-6">
             <Link href="/sign-in" className="hover:text-foreground transition-colors">Sign In</Link>
             <Link href="/sign-up" className="hover:text-foreground transition-colors">Sign Up</Link>

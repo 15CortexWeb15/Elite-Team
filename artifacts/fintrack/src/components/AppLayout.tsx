@@ -60,7 +60,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <span className="text-lg font-bold tracking-tight">FinTrack</span>
+              <span className="text-lg font-bold tracking-tight">Roxel</span>
             </Link>
           </SidebarHeader>
           <SidebarContent>
@@ -124,7 +124,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 flex flex-col min-w-0">
           <header className="h-14 lg:hidden flex items-center px-4 border-b border-border gap-4">
             <SidebarTrigger />
-            <span className="font-bold">FinTrack</span>
+            <span className="font-bold">Roxel</span>
           </header>
           <div className="flex-1 p-4 lg:p-8 overflow-auto">
             {children}

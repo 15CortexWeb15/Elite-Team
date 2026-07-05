@@ -134,7 +134,7 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Personalize your FinTrack experience.</CardDescription>
+                <CardDescription>Personalize your Roxel experience.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
                 <div className="space-y-2">
@@ -207,7 +207,7 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Notifications & AI</CardTitle>
-                <CardDescription>Control what FinTrack does automatically on your behalf.</CardDescription>
+                <CardDescription>Control what Roxel does automatically on your behalf.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-0 divide-y divide-border">
                 <div className="flex items-center justify-between py-4">
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                 Active Sessions
               </CardTitle>
               <CardDescription>
-                Sign out of all devices at once. Useful if you've used FinTrack on a shared or public computer.
+                Sign out of all devices at once. Useful if you've used Roxel on a shared or public computer.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will permanently delete your FinTrack account and remove all trades,
+                      This will permanently delete your Roxel account and remove all trades,
                       analytics, and AI analyses from our servers. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

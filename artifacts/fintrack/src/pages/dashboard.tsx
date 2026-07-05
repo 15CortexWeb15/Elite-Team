@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 
 type ChartType = 'area' | 'line' | 'bar';
-const CHART_KEY = 'fintrack:dashboard-chart-type';
+const CHART_KEY = 'roxel:dashboard-chart-type';
 
 const CHART_OPTIONS: { value: ChartType; icon: React.ReactNode; label: string }[] = [
   { value: 'area', icon: <AreaIcon className="h-3.5 w-3.5" />, label: 'Area' },

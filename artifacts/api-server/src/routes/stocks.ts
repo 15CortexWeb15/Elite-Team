@@ -130,7 +130,7 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
     const result = await yahooFinance.chart(symbol, {
       period1: fromMap[range],
       interval: intervalMap[range],
-    });
+    }, { validateResult: false });
 
     const quotes = result.quotes ?? [];
     if (!quotes.length) {

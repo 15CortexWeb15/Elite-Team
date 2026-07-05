@@ -24,7 +24,7 @@ type MonthlyChartType  = 'bar'  | 'line' | 'area';
 type DayChartType      = 'bar'  | 'line';
 type AssetChartType    = 'table' | 'bar' | 'pie';
 
-const STORAGE_KEY = 'fintrack:analytics-chart-types';
+const STORAGE_KEY = 'roxel:analytics-chart-types';
 
 function loadPrefs(): Record<string, string> {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'); } catch { return {}; }

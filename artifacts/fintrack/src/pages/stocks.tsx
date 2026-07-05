@@ -63,8 +63,8 @@ async function apiFetch<T>(path: string): Promise<T> {
 
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
-const WATCHLIST_KEY = 'fintrack:watchlist-v2';
-const CHART_TYPE_KEY = 'fintrack:stocks-chart-type';
+const WATCHLIST_KEY = 'roxel:watchlist-v2';
+const CHART_TYPE_KEY = 'roxel:stocks-chart-type';
 const DEFAULT_WATCHLIST = ['AAPL', 'TSLA', 'MSFT', 'BTC-USD', 'SPY'];
 
 function loadWatchlist(): string[] {

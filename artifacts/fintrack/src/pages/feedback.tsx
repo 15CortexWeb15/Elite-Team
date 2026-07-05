@@ -31,7 +31,7 @@ export default function FeedbackPage() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Feedback</h1>
-        <p className="text-muted-foreground mt-1">Help us improve FinTrack.</p>
+        <p className="text-muted-foreground mt-1">Help us improve Roxel.</p>
       </div>
 
       <Card>
