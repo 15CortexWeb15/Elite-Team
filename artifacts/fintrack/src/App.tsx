@@ -82,6 +82,8 @@ const clerkAppearance = {
     footerAction: "border-t border-border mt-4 pt-4",
     dividerLine: "bg-border",
     alert: "bg-destructive/10 border border-destructive/20 text-destructive",
+    badge: "!hidden",
+    developmentBadge: "!hidden",
     otpCodeFieldInput: "bg-input border-border focus:ring-ring",
     formFieldRow: "mb-4",
     main: "p-6 sm:p-8",

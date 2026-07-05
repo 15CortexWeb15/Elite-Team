@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import yahooFinance from 'yahoo-finance2';
 import { requireAuth } from '../lib/auth';
 
 const router = Router();
@@ -108,53 +109,46 @@ router.get('/search', requireAuth, async (req, res): Promise<void> => {
 
 // GET /api/stocks/history/:symbol?range=1d|5d|1mo|3mo|6mo|1y
 router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
-  if (!FINNHUB_KEY) {
-    res.status(503).json({ error: 'FINNHUB_API_KEY not set' });
-    return;
-  }
-
   const symbol = Array.isArray(req.params.symbol) ? req.params.symbol[0] : req.params.symbol;
   const VALID_RANGES = new Set(['1d', '5d', '1mo', '3mo', '6mo', '1y']);
   const range = VALID_RANGES.has(req.query.range as string) ? (req.query.range as string) : '1d';
 
-  // Finnhub candle resolutions: 1, 5, 15, 30, 60, D, W, M
-  const resMap: Record<string, string> = {
-    '1d': '5', '5d': '15', '1mo': '60', '3mo': 'D', '6mo': 'D', '1y': 'W',
+  // Yahoo Finance intervals
+  const intervalMap: Record<string, '5m' | '15m' | '60m' | '1d' | '1wk'> = {
+    '1d': '5m', '5d': '15m', '1mo': '60m', '3mo': '1d', '6mo': '1d', '1y': '1wk',
   };
-  // "from" timestamps
-  const now = Math.floor(Date.now() / 1000);
-  const fromMap: Record<string, number> = {
-    '1d':  now - 86400,
-    '5d':  now - 5 * 86400,
-    '1mo': now - 30 * 86400,
-    '3mo': now - 90 * 86400,
-    '6mo': now - 180 * 86400,
-    '1y':  now - 365 * 86400,
+  const fromMap: Record<string, Date> = {
+    '1d':  new Date(Date.now() - 86_400_000),
+    '5d':  new Date(Date.now() - 5 * 86_400_000),
+    '1mo': new Date(Date.now() - 30 * 86_400_000),
+    '3mo': new Date(Date.now() - 90 * 86_400_000),
+    '6mo': new Date(Date.now() - 180 * 86_400_000),
+    '1y':  new Date(Date.now() - 365 * 86_400_000),
   };
 
   try {
-    const resolution = resMap[range];
-    const from = fromMap[range];
+    const result = await yahooFinance.chart(symbol, {
+      period1: fromMap[range],
+      interval: intervalMap[range],
+    });
 
-    const data = await fhFetch<{
-      s: string; t: number[]; c: number[]; o: number[]; h: number[]; l: number[]; v: number[];
-    }>(`/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=${resolution}&from=${from}&to=${now}`);
-
-    if (data.s !== 'ok' || !data.t?.length) {
+    const quotes = result.quotes ?? [];
+    if (!quotes.length) {
       res.status(404).json({ error: 'No data for this symbol / range' });
       return;
     }
 
     const isFiniteNum = (n: unknown): n is number => typeof n === 'number' && isFinite(n);
-    const points = data.t
-      .map((ts, i) => ({
-        time: ts * 1000,
-        price: data.c[i],
-        open: data.o[i],
-        high: data.h[i],
-        low: data.l[i],
-        close: data.c[i],
-        volume: data.v?.[i] ?? 0,
+    const points = quotes
+      .filter(q => q.open != null && q.close != null)
+      .map(q => ({
+        time: new Date(q.date).getTime(),
+        price: q.close as number,
+        open: q.open as number,
+        high: q.high as number,
+        low: q.low as number,
+        close: q.close as number,
+        volume: q.volume ?? 0,
       }))
       .filter(p =>
         isFiniteNum(p.time) &&
@@ -165,11 +159,13 @@ router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
       )
       .sort((a, b) => a.time - b.time);
 
-    // Current price from quote cache or last candle
     const cached = quoteCache.get(symbol);
-    const regularMarketPrice = (cached?.data.price as number | undefined) ?? points[points.length - 1]?.price;
+    const regularMarketPrice =
+      (cached?.data.price as number | undefined) ??
+      result.meta?.regularMarketPrice ??
+      points[points.length - 1]?.price;
 
-    res.json({ symbol, currency: 'USD', regularMarketPrice, points });
+    res.json({ symbol, currency: result.meta?.currency ?? 'USD', regularMarketPrice, points });
   } catch (err) {
     console.error(`[stocks] history failed for ${symbol}:`, (err as Error).message);
     res.status(502).json({ error: 'Failed to fetch history' });
