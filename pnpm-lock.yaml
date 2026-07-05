@@ -229,17 +229,13 @@ importers:
         version: 3.1.0
 
   artifacts/fintrack:
-    dependencies:
+    devDependencies:
       '@clerk/react':
         specifier: ^6.11.3
         version: 6.11.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@clerk/themes':
         specifier: ^2.4.57
         version: 2.4.57(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      lightweight-charts:
-        specifier: ^5.2.0
-        version: 5.2.0
-    devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.80.0(react@19.1.0))
@@ -378,6 +374,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      lightweight-charts:
+        specifier: ^5.2.0
+        version: 5.2.0
       lucide-react:
         specifier: 'catalog:'
         version: 0.545.0(react@19.1.0)
