@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ClerkProvider, SignUp, Show, useClerk, useUser, AuthenticateWithRedirectCallback } from '@clerk/react';
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { dark } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
@@ -110,19 +110,10 @@ function buildClerkAppearance(isDark: boolean) {
   };
 }
 
-const CustomSignInPage = React.lazy(() => import('./pages/sign-in'));
-
 function SignInPage() {
-  return <CustomSignInPage />;
-}
-
-function SSOCallbackPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <AuthenticateWithRedirectCallback
-        afterSignInUrl={`${basePath}/dashboard`}
-        afterSignUpUrl={`${basePath}/onboarding`}
-      />
+    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
+      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/dashboard`} />
     </div>
   );
 }
@@ -228,7 +219,6 @@ function ClerkProviderWithRoutes() {
             <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
-            <Route path="/sso-callback" component={SSOCallbackPage} />
             <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
             <Route path="/dashboard" component={() => <ProtectedRoute component={DashboardPage} />} />
             <Route path="/journal" component={() => <ProtectedRoute component={JournalPage} />} />
