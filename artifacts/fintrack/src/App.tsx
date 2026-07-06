@@ -23,6 +23,7 @@ import FeedbackPage from "./pages/feedback";
 import OnboardingPage from "./pages/onboarding";
 import StocksPage from "./pages/stocks";
 import NotFound from "./pages/not-found";
+import VideoTemplate from "./components/video/VideoTemplate";
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -48,14 +49,14 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: "hsl(0 0% 93%)", // white-ish
-    colorForeground: "hsl(0 0% 93%)",       
-    colorMutedForeground: "hsl(0 0% 65%)",  
+    colorPrimary: "hsl(0 0% 93%)",
+    colorForeground: "hsl(0 0% 93%)",
+    colorMutedForeground: "hsl(0 0% 65%)",
     colorDanger: "hsl(0 84% 60%)",
-    colorBackground: "hsl(0 0% 7%)",       
-    colorInput: "hsl(0 0% 12%)",            
-    colorInputForeground: "hsl(0 0% 93%)",  
-    colorNeutral: "hsl(0 0% 20%)",          
+    colorBackground: "hsl(0 0% 7%)",
+    colorInput: "hsl(0 0% 12%)",
+    colorInputForeground: "hsl(0 0% 93%)",
+    colorNeutral: "hsl(0 0% 20%)",
     fontFamily: "var(--app-font-sans)",
     borderRadius: "0.5rem",
   },
@@ -141,7 +142,6 @@ function HomeRedirect() {
   );
 }
 
-// Protected route wrapper
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isLoaded, isSignedIn } = useUser();
   const { data: onboarding, isLoading: isAuthLoading } = useGetOnboarding({ query: { enabled: !!isSignedIn, queryKey: getGetOnboardingQueryKey() } });
@@ -156,11 +156,11 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
 
   const isOnboardingPage = location === '/onboarding';
-  
+
   if (onboarding && !onboarding.completed && !isOnboardingPage) {
     return <Redirect to="/onboarding" />;
   }
-  
+
   if (onboarding && onboarding.completed && isOnboardingPage) {
     return <Redirect to="/dashboard" />;
   }
@@ -205,6 +205,11 @@ function ClerkProviderWithRoutes() {
           <Route path="/profile" component={() => <ProtectedRoute component={ProfilePage} />} />
           <Route path="/settings" component={() => <ProtectedRoute component={SettingsPage} />} />
           <Route path="/feedback" component={() => <ProtectedRoute component={FeedbackPage} />} />
+          <Route path="/video" component={() => (
+            <div className="w-full h-screen bg-[#020202] text-white overflow-hidden">
+              <VideoTemplate />
+            </div>
+          )} />
           <Route component={NotFound} />
         </Switch>
       </QueryClientProvider>
