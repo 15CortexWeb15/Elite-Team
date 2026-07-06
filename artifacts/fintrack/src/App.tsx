@@ -10,20 +10,20 @@ import { ThemeProvider } from "next-themes";
 import { AppLayout } from "./components/AppLayout";
 import { useGetOnboarding, getGetOnboardingQueryKey } from "@workspace/api-client-react";
 
-// Pages
-import HomePage from "./pages/home";
-import DashboardPage from "./pages/dashboard";
-import JournalPage from "./pages/journal";
-import AnalyticsPage from "./pages/analytics";
-import AiCoachPage from "./pages/ai-coach";
-import CalendarPage from "./pages/calendar";
-import ProfilePage from "./pages/profile";
-import SettingsPage from "./pages/settings";
-import FeedbackPage from "./pages/feedback";
-import OnboardingPage from "./pages/onboarding";
-import StocksPage from "./pages/stocks";
-import NotFound from "./pages/not-found";
-import VideoTemplate from "./components/video/VideoTemplate";
+// Pages — lazy loaded for faster initial bundle
+const HomePage = React.lazy(() => import("./pages/home"));
+const DashboardPage = React.lazy(() => import("./pages/dashboard"));
+const JournalPage = React.lazy(() => import("./pages/journal"));
+const AnalyticsPage = React.lazy(() => import("./pages/analytics"));
+const AiCoachPage = React.lazy(() => import("./pages/ai-coach"));
+const CalendarPage = React.lazy(() => import("./pages/calendar"));
+const ProfilePage = React.lazy(() => import("./pages/profile"));
+const SettingsPage = React.lazy(() => import("./pages/settings"));
+const FeedbackPage = React.lazy(() => import("./pages/feedback"));
+const OnboardingPage = React.lazy(() => import("./pages/onboarding"));
+const StocksPage = React.lazy(() => import("./pages/stocks"));
+const NotFound = React.lazy(() => import("./pages/not-found"));
+const VideoTemplate = React.lazy(() => import("./components/video/VideoTemplate"));
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -191,27 +191,29 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
-        <Switch>
-          <Route path="/" component={HomeRedirect} />
-          <Route path="/sign-in/*?" component={SignInPage} />
-          <Route path="/sign-up/*?" component={SignUpPage} />
-          <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
-          <Route path="/dashboard" component={() => <ProtectedRoute component={DashboardPage} />} />
-          <Route path="/journal" component={() => <ProtectedRoute component={JournalPage} />} />
-          <Route path="/analytics" component={() => <ProtectedRoute component={AnalyticsPage} />} />
-          <Route path="/stocks" component={() => <ProtectedRoute component={StocksPage} />} />
-          <Route path="/ai-coach" component={() => <ProtectedRoute component={AiCoachPage} />} />
-          <Route path="/calendar" component={() => <ProtectedRoute component={CalendarPage} />} />
-          <Route path="/profile" component={() => <ProtectedRoute component={ProfilePage} />} />
-          <Route path="/settings" component={() => <ProtectedRoute component={SettingsPage} />} />
-          <Route path="/feedback" component={() => <ProtectedRoute component={FeedbackPage} />} />
-          <Route path="/video" component={() => (
-            <div className="w-full h-screen bg-[#020202] text-white overflow-hidden">
-              <VideoTemplate />
-            </div>
-          )} />
-          <Route component={NotFound} />
-        </Switch>
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+          <Switch>
+            <Route path="/" component={HomeRedirect} />
+            <Route path="/sign-in/*?" component={SignInPage} />
+            <Route path="/sign-up/*?" component={SignUpPage} />
+            <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
+            <Route path="/dashboard" component={() => <ProtectedRoute component={DashboardPage} />} />
+            <Route path="/journal" component={() => <ProtectedRoute component={JournalPage} />} />
+            <Route path="/analytics" component={() => <ProtectedRoute component={AnalyticsPage} />} />
+            <Route path="/stocks" component={() => <ProtectedRoute component={StocksPage} />} />
+            <Route path="/ai-coach" component={() => <ProtectedRoute component={AiCoachPage} />} />
+            <Route path="/calendar" component={() => <ProtectedRoute component={CalendarPage} />} />
+            <Route path="/profile" component={() => <ProtectedRoute component={ProfilePage} />} />
+            <Route path="/settings" component={() => <ProtectedRoute component={SettingsPage} />} />
+            <Route path="/feedback" component={() => <ProtectedRoute component={FeedbackPage} />} />
+            <Route path="/video" component={() => (
+              <div className="w-full h-screen bg-[#020202] text-white overflow-hidden">
+                <VideoTemplate />
+              </div>
+            )} />
+            <Route component={NotFound} />
+          </Switch>
+        </React.Suspense>
       </QueryClientProvider>
     </ClerkProvider>
   );
