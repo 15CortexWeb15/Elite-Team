@@ -56,7 +56,7 @@ type SearchResult = {
 };
 
 async function apiFetch<T>(path: string): Promise<T> {
-  const r = await fetch(`${BASE}${path}`);
+  const r = await fetch(`${BASE}${path}`, { credentials: 'include' });
   if (!r.ok) throw new Error(`API error ${r.status}`);
   return r.json() as Promise<T>;
 }
@@ -483,7 +483,7 @@ export default function StocksPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Live Markets</h1>
           <p className="text-muted-foreground mt-1">
-            Powered by Finnhub — auto-refreshes every 5 s.
+            Powered by Yahoo Finance — auto-refreshes every 5 s.
             {lastUpdated && (
               <span className="ml-2 text-xs font-mono opacity-60">Last: {lastUpdated}</span>
             )}

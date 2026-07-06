@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import YahooFinance from 'yahoo-finance2';
-import { requireAuth } from '../lib/auth';
 
 const router = Router();
 
@@ -47,7 +46,7 @@ async function fetchOneQuote(symbol: string): Promise<Record<string, unknown> | 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 // GET /api/stocks/quote?symbols=AAPL,TSLA,BTC-USD
-router.get('/quote', requireAuth, async (req, res): Promise<void> => {
+router.get('/quote', async (req, res): Promise<void> => {
   const raw = (req.query.symbols as string | undefined)?.trim();
   if (!raw) { res.status(400).json({ error: 'symbols query param required' }); return; }
 
@@ -63,7 +62,7 @@ router.get('/quote', requireAuth, async (req, res): Promise<void> => {
 });
 
 // GET /api/stocks/search?q=apple
-router.get('/search', requireAuth, async (req, res): Promise<void> => {
+router.get('/search', async (req, res): Promise<void> => {
   const q = (req.query.q as string | undefined)?.trim();
   if (!q) { res.json([]); return; }
 
@@ -95,7 +94,7 @@ router.get('/search', requireAuth, async (req, res): Promise<void> => {
 });
 
 // GET /api/stocks/history/:symbol?range=1d|5d|1mo|3mo|6mo|1y
-router.get('/history/:symbol', requireAuth, async (req, res): Promise<void> => {
+router.get('/history/:symbol', async (req, res): Promise<void> => {
   const symbol = Array.isArray(req.params.symbol) ? req.params.symbol[0] : req.params.symbol;
   const VALID_RANGES = new Set(['1d', '5d', '1mo', '3mo', '6mo', '1y']);
   const range = VALID_RANGES.has(req.query.range as string) ? (req.query.range as string) : '1d';
