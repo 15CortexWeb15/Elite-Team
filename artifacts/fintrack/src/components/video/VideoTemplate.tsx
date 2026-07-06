@@ -6,6 +6,7 @@ import { Scene2 } from './video_scenes/Scene2';
 import { Scene3 } from './video_scenes/Scene3';
 import { Scene4 } from './video_scenes/Scene4';
 import { Scene5 } from './video_scenes/Scene5';
+import { RecordOverlay } from './RecordOverlay';
 
 const SCENE_DURATIONS = { 
   open: 4000, 
@@ -61,6 +62,7 @@ export default function VideoTemplate() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#020202] text-white font-sans">
+      <RecordOverlay />
       <GridBackground currentScene={currentScene} />
       
       <AnimatePresence mode="popLayout">
