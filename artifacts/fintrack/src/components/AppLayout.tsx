@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useLocation } from "wouter";
 import { 
   Sidebar, 
@@ -24,32 +24,40 @@ import {
   User, 
   MessageSquare,
   LogOut,
-  ChevronRight,
   TrendingUp,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const navigation = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Journal", href: "/journal", icon: Table2 },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Markets", href: "/stocks", icon: TrendingUp },
+  { name: "AI Coach", href: "/ai-coach", icon: BrainCircuit },
+  { name: "Calendar", href: "/calendar", icon: CalendarDays },
+];
+
+const secondaryNavigation = [
+  { name: "Profile", href: "/profile", icon: User },
+  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Feedback", href: "/feedback", icon: MessageSquare },
+];
+
+// 5 items shown in bottom nav on mobile
+const mobileNav = [
+  { name: "Home", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Journal", href: "/journal", icon: Table2 },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "AI Coach", href: "/ai-coach", icon: BrainCircuit },
+  { name: "Settings", href: "/settings", icon: Settings },
+];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user } = useUser();
   const { signOut } = useClerk();
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-  const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Trade Journal", href: "/journal", icon: Table2 },
-    { name: "Analytics", href: "/analytics", icon: BarChart3 },
-    { name: "Live Markets", href: "/stocks", icon: TrendingUp },
-    { name: "AI Coach", href: "/ai-coach", icon: BrainCircuit },
-    { name: "Calendar", href: "/calendar", icon: CalendarDays },
-  ];
-
-  const secondaryNavigation = [
-    { name: "Profile", href: "/profile", icon: User },
-    { name: "Settings", href: "/settings", icon: Settings },
-    { name: "Feedback", href: "/feedback", icon: MessageSquare },
-  ];
 
   return (
     <SidebarProvider>
@@ -122,15 +130,41 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </Sidebar>
         
         <main className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 lg:hidden flex items-center px-4 border-b border-border gap-4">
+          {/* Mobile top header with sidebar trigger */}
+          <header className="h-14 lg:hidden flex items-center px-4 border-b border-border gap-4 shrink-0">
             <SidebarTrigger />
             <span className="font-bold">Roxel</span>
           </header>
-          <div className="flex-1 p-4 lg:p-8 overflow-auto">
+
+          {/* Page content — extra bottom padding on mobile for the nav bar */}
+          <div className="flex-1 p-4 lg:p-8 overflow-auto pb-24 lg:pb-8">
             {children}
           </div>
         </main>
       </div>
+
+      {/* ── Mobile bottom navigation bar ── */}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 h-16 bg-background/95 backdrop-blur-sm border-t border-border flex items-stretch">
+        {mobileNav.map(({ name, href, icon: Icon }) => {
+          const isActive = location === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${isActive ? "bg-muted" : ""}`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <span>{name}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </SidebarProvider>
   );
 }
