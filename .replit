@@ -21,8 +21,6 @@ timeoutMs = 20000
 [userenv]
 
 [userenv.shared]
-CLERK_PUBLISHABLE_KEY = "pk_test_bm90ZWQtZ2VsZGluZy03My5jbGVyay5hY2NvdW50cy5kZXYk"
-VITE_CLERK_PUBLISHABLE_KEY = "pk_test_bm90ZWQtZ2VsZGluZy03My5jbGVyay5hY2NvdW50cy5kZXYk"
 
 [nix]
 packages = ["zip"]
