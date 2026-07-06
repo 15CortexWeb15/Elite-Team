@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useListTrades, useCreateTrade, useUpdateTrade, useDeleteTrade } from '@workspace/api-client-react';
 import type { Trade, TradeInput } from '@workspace/api-client-react';
 import { formatMoney, formatPercent, cnProfitLoss } from '@/lib/utils';
@@ -31,6 +31,15 @@ export default function JournalPage() {
   const [deletingTradeId, setDeletingTradeId] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') {
+      setEditingTrade(null);
+      setIsSheetOpen(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
   const deleteMutation = useDeleteTrade();
 
   const queryParams = {

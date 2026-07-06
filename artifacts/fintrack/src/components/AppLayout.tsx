@@ -44,13 +44,14 @@ const secondaryNavigation = [
   { name: "Feedback", href: "/feedback", icon: MessageSquare },
 ];
 
-// 5 items shown in bottom nav on mobile
-const mobileNav = [
+// 4 items around the centre "+" button
+const mobileNavLeft = [
   { name: "Home", href: "/dashboard", icon: LayoutDashboard },
   { name: "Journal", href: "/journal", icon: Table2 },
+];
+const mobileNavRight = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "AI Coach", href: "/ai-coach", icon: BrainCircuit },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -143,18 +144,49 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* ── Mobile bottom navigation bar ── */}
+      {/* ── Mobile bottom navigation bar (TikTok-style) ── */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 h-16 bg-background/95 backdrop-blur-sm border-t border-border flex items-stretch">
-        {mobileNav.map(({ name, href, icon: Icon }) => {
+        {/* Left 2 */}
+        {mobileNavLeft.map(({ name, href, icon: Icon }) => {
           const isActive = location === href;
           return (
             <Link
               key={href}
               href={href}
               className={`flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
-                isActive
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${isActive ? "bg-muted" : ""}`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <span>{name}</span>
+            </Link>
+          );
+        })}
+
+        {/* Centre "+" Add Trade button */}
+        <div className="flex-1 flex items-center justify-center">
+          <Link
+            href="/journal?new=1"
+            className="flex items-center justify-center h-12 w-12 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform"
+            aria-label="Add trade"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </Link>
+        </div>
+
+        {/* Right 2 */}
+        {mobileNavRight.map(({ name, href, icon: Icon }) => {
+          const isActive = location === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className={`p-1 rounded-lg transition-colors ${isActive ? "bg-muted" : ""}`}>
