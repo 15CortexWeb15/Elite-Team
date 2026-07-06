@@ -6,7 +6,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider, useTheme } from "next-themes";
 import { AppLayout } from "./components/AppLayout";
 import { useGetOnboarding, getGetOnboardingQueryKey } from "@workspace/api-client-react";
 
@@ -40,56 +40,71 @@ if (!clerkPubKey) {
   throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
 }
 
-const clerkAppearance = {
-  theme: dark,
-  cssLayerName: "clerk",
-  options: {
-    logoPlacement: "inside" as const,
-    logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
-  },
-  variables: {
-    colorPrimary: "hsl(0 0% 93%)",
-    colorForeground: "hsl(0 0% 93%)",
-    colorMutedForeground: "hsl(0 0% 65%)",
-    colorDanger: "hsl(0 84% 60%)",
-    colorBackground: "hsl(0 0% 7%)",
-    colorInput: "hsl(0 0% 12%)",
-    colorInputForeground: "hsl(0 0% 93%)",
-    colorNeutral: "hsl(0 0% 20%)",
-    fontFamily: "var(--app-font-sans)",
-    borderRadius: "0.5rem",
-  },
-  elements: {
-    rootBox: "w-full flex justify-center",
-    cardBox: "bg-card rounded-xl border border-border w-[440px] max-w-full shadow-xl overflow-hidden",
-    card: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    headerTitle: "text-foreground font-bold",
-    headerSubtitle: "text-muted-foreground",
-    socialButtonsBlockButtonText: "text-foreground font-medium",
-    formFieldLabel: "text-foreground font-medium",
-    footerActionLink: "text-primary hover:text-primary/90 font-medium",
-    footerActionText: "text-muted-foreground",
-    dividerText: "text-muted-foreground",
-    identityPreviewEditButton: "text-primary",
-    formFieldSuccessText: "text-profit",
-    alertText: "text-destructive",
-    logoBox: "mb-6 flex justify-center",
-    logoImage: "h-8 w-auto filter invert",
-    socialButtonsBlockButton: "border border-border hover:bg-muted/50 bg-background text-foreground transition-colors",
-    formButtonPrimary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-colors",
-    formFieldInput: "bg-input border-border text-foreground placeholder:text-muted-foreground focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
-    footerAction: "border-t border-border mt-4 pt-4",
-    dividerLine: "bg-border",
-    alert: "bg-destructive/10 border border-destructive/20 text-destructive",
-    badge: "!hidden",
-    developmentBadge: "!hidden",
-    otpCodeFieldInput: "bg-input border-border focus:ring-ring",
-    formFieldRow: "mb-4",
-    main: "p-6 sm:p-8",
-  },
-};
+function buildClerkAppearance(isDark: boolean) {
+  return {
+    theme: isDark ? dark : undefined,
+    cssLayerName: "clerk",
+    options: {
+      logoPlacement: "inside" as const,
+      logoLinkUrl: basePath || "/",
+      logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    },
+    variables: isDark
+      ? {
+          colorPrimary: "hsl(0 0% 93%)",
+          colorForeground: "hsl(0 0% 93%)",
+          colorMutedForeground: "hsl(0 0% 65%)",
+          colorDanger: "hsl(0 84% 60%)",
+          colorBackground: "hsl(0 0% 7%)",
+          colorInput: "hsl(0 0% 12%)",
+          colorInputForeground: "hsl(0 0% 93%)",
+          colorNeutral: "hsl(0 0% 20%)",
+          fontFamily: "var(--app-font-sans)",
+          borderRadius: "0.5rem",
+        }
+      : {
+          colorPrimary: "hsl(222 47% 11%)",
+          colorForeground: "hsl(222 47% 11%)",
+          colorMutedForeground: "hsl(215 16% 47%)",
+          colorDanger: "hsl(0 72% 51%)",
+          colorBackground: "hsl(210 20% 98%)",
+          colorInput: "hsl(214 32% 92%)",
+          colorInputForeground: "hsl(222 47% 11%)",
+          colorNeutral: "hsl(215 20% 65%)",
+          fontFamily: "var(--app-font-sans)",
+          borderRadius: "0.5rem",
+        },
+    elements: {
+      rootBox: "w-full flex justify-center",
+      cardBox: "bg-card rounded-xl border border-border w-[440px] max-w-full shadow-xl overflow-hidden",
+      card: "!shadow-none !border-0 !bg-transparent !rounded-none",
+      footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
+      headerTitle: "text-foreground font-bold",
+      headerSubtitle: "text-muted-foreground",
+      socialButtonsBlockButtonText: "text-foreground font-medium",
+      formFieldLabel: "text-foreground font-medium",
+      footerActionLink: "text-primary hover:text-primary/90 font-medium",
+      footerActionText: "text-muted-foreground",
+      dividerText: "text-muted-foreground",
+      identityPreviewEditButton: "text-primary",
+      formFieldSuccessText: "text-profit",
+      alertText: "text-destructive",
+      logoBox: "mb-6 flex justify-center",
+      logoImage: isDark ? "h-8 w-auto filter invert" : "h-8 w-auto",
+      socialButtonsBlockButton: "border border-border hover:bg-muted/50 bg-background text-foreground transition-colors",
+      formButtonPrimary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-colors",
+      formFieldInput: "bg-input border-border text-foreground placeholder:text-muted-foreground focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
+      footerAction: "border-t border-border mt-4 pt-4",
+      dividerLine: "bg-border",
+      alert: "bg-destructive/10 border border-destructive/20 text-destructive",
+      badge: "!hidden",
+      developmentBadge: "!hidden",
+      otpCodeFieldInput: "bg-input border-border focus:ring-ring",
+      formFieldRow: "mb-4",
+      main: "p-6 sm:p-8",
+    },
+  };
+}
 
 const CustomSignInPage = React.lazy(() => import('./pages/sign-in'));
 
@@ -187,6 +202,10 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
+  const { resolvedTheme } = useTheme();
+  // resolvedTheme is undefined on first render (SSR hydration); default to dark
+  // to match defaultTheme="dark" and avoid a mismatched flash.
+  const clerkAppearance = buildClerkAppearance(resolvedTheme !== 'light');
 
   return (
     <ClerkProvider
