@@ -9,74 +9,76 @@ export function Scene1() {
       setTimeout(() => setPhase(1), 600),
       setTimeout(() => setPhase(2), 1600),
       setTimeout(() => setPhase(3), 2600),
-      setTimeout(() => setPhase(4), 4000), // exit choreography
+      setTimeout(() => setPhase(4), 4000),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
 
   return (
-    <motion.div 
-      className="absolute inset-0 flex items-center justify-center"
+    <motion.div
+      className="absolute inset-0 flex flex-col items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, filter: 'blur(20px)', scale: 1.1 }}
       transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Background Candlesticks Texture */}
+      {/* Candlestick background texture */}
       <motion.div
-        className="absolute inset-0 opacity-10 mix-blend-screen pointer-events-none"
+        className="absolute inset-0 opacity-12 mix-blend-screen pointer-events-none"
         style={{
           backgroundImage: `url(${import.meta.env.BASE_URL}images/candlesticks.png)`,
-          backgroundSize: '150%',
+          backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundRepeat: 'no-repeat',
         }}
-        initial={{ x: '-10%', scale: 1.1 }}
-        animate={{ x: '0%', scale: 1 }}
-        transition={{ duration: 5, ease: "easeOut" }}
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 5, ease: 'easeOut' }}
       />
 
-      <div className="relative z-20 flex flex-col items-center">
-        {/* Logo Mark Reveal */}
+      <div className="relative z-20 flex flex-col items-center px-[8vw] text-center">
+        {/* Logo mark */}
         <motion.div
-          className="w-[8vw] h-[8vw] mb-[4vw] rounded-xl flex items-center justify-center relative overflow-hidden"
+          className="mb-[5vh] rounded-2xl flex items-center justify-center relative overflow-hidden"
+          style={{ width: '14vh', height: '14vh' }}
           initial={{ opacity: 0, scale: 0.8, rotateX: -30 }}
           animate={{ opacity: 1, scale: 1, rotateX: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="absolute inset-0 bg-[#111] border border-white/10 rounded-xl" />
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-tr from-[#00ff87]/20 to-transparent"
+          <div className="absolute inset-0 bg-[#111] border border-white/10 rounded-2xl" />
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-tr from-[#00ff87]/20 to-transparent rounded-2xl"
             initial={{ opacity: 0 }}
             animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 1 }}
           />
-          <svg width="4vw" height="4vw" viewBox="0 0 24 24" fill="none" stroke="#00ff87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="7vh" height="7vh" viewBox="0 0 24 24" fill="none" stroke="#00ff87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
             <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
             <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
           </svg>
         </motion.div>
 
-        {/* Main Typography */}
-        <div className="text-center tracking-tight leading-[1.1]">
+        {/* Main typography */}
+        <div className="tracking-tight leading-[1.1]">
           <motion.div
             initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
             animate={phase >= 1 ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 30, filter: 'blur(10px)' }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[5vw] font-bold text-white/90"
+            className="font-bold text-white/90"
+            style={{ fontSize: '8.5vh' }}
           >
-            Track performance.
+            Track<br />performance.
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
             animate={phase >= 2 ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 30, filter: 'blur(10px)' }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[5vw] font-bold text-[#00ff87]"
-            style={{ textShadow: '0 0 40px rgba(0,255,135,0.3)' }}
+            className="font-bold text-[#00ff87] mt-[1vh]"
+            style={{ fontSize: '8.5vh', textShadow: '0 0 40px rgba(0,255,135,0.3)' }}
           >
-            Discover your edge.
+            Discover<br />your edge.
           </motion.div>
         </div>
 
@@ -85,14 +87,15 @@ export function Scene1() {
           initial={{ opacity: 0 }}
           animate={phase >= 3 ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="mt-[4vw] font-mono text-[1.2vw] text-white/50 tracking-widest uppercase"
+          className="mt-[4vh] font-mono text-white/50 tracking-widest uppercase"
+          style={{ fontSize: '1.6vh' }}
         >
           The professional standard
         </motion.div>
       </div>
 
-      {/* Wipe transition element for exit */}
-      <motion.div 
+      {/* Wipe transition exit */}
+      <motion.div
         className="absolute inset-0 bg-[#00ff87] z-50 origin-bottom"
         initial={{ scaleY: 0 }}
         animate={phase >= 4 ? { scaleY: 1 } : { scaleY: 0 }}
