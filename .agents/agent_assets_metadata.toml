@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "zvpQVHtzrIR9LhsQhFn6O"
+uri = "file://artifacts/fintrack/public/audio/bg-music.mp3"
+type = "audio"
+title = "roxel-commercial-underscore"
