@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser, useAuth } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { dark } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider, useTheme } from "next-themes";
 import { AppLayout } from "./components/AppLayout";
-import { useGetOnboarding, getGetOnboardingQueryKey } from "@workspace/api-client-react";
+import { useGetOnboarding, getGetOnboardingQueryKey, setAuthTokenGetter } from "@workspace/api-client-react";
 
 // Pages — lazy loaded for faster initial bundle
 const HomePage = React.lazy(() => import("./pages/home"));
@@ -126,6 +126,16 @@ function SignUpPage() {
   );
 }
 
+/** Wires Clerk's session token into every customFetch call as a Bearer token. */
+function ClerkApiSetup() {
+  const { getToken } = useAuth();
+  useEffect(() => {
+    setAuthTokenGetter(() => getToken());
+    return () => setAuthTokenGetter(null);
+  }, [getToken]);
+  return null;
+}
+
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const queryClient = useQueryClient();
@@ -213,6 +223,7 @@ function ClerkProviderWithRoutes() {
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       <QueryClientProvider client={queryClient}>
+        <ClerkApiSetup />
         <ClerkQueryClientCacheInvalidator />
         <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
           <Switch>
