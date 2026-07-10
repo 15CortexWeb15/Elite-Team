@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Upload, FileText, CheckCircle2, Loader2, BrainCircuit, ArrowRight, X, AlertCircle } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getListTradesQueryKey, getGetDashboardQueryKey } from '@workspace/api-client-react';
+import { GA } from '@/lib/analytics';
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') ?? '';
 
 // ─── CSV Parser ───────────────────────────────────────────────────────────────
@@ -224,6 +225,7 @@ export function TradeImportDialog({ open, onOpenChange }: { open: boolean; onOpe
       if (!res.ok) throw new Error(await res.text());
       const { imported } = await res.json() as { imported: number };
       setImportedCount(imported);
+      GA.csvImportCompleted(imported);
       queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
       setStep('done');
@@ -236,6 +238,7 @@ export function TradeImportDialog({ open, onOpenChange }: { open: boolean; onOpe
   };
 
   const handleAnalyze = async () => {
+    GA.csvAnalysisRequested();
     setAnalyzing(true);
     try {
       const res = await fetch(`${BASE}/api/trades/import/analyze`, {

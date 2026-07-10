@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BrainCircuit, Loader2, Sparkles, TrendingDown, Target, ShieldAlert } from 'lucide-react';
+import { GA } from '@/lib/analytics';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ export default function AiCoachPage() {
   const [period, setPeriod] = React.useState<string>('month');
 
   const handleRequest = () => {
+    GA.aiAnalysisRequested(period);
     requestMutation.mutate({ data: { period: period as any } }, {
       onSuccess: () => {
         toast.success("Analysis generated successfully.");

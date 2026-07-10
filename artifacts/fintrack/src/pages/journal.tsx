@@ -17,8 +17,9 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Search, Plus, Target, ArrowUpDown, Trash2, Upload } from 'lucide-react';
+import { Search, Plus, Target, Trash2, Upload } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { GA } from '@/lib/analytics';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -65,6 +66,7 @@ export default function JournalPage() {
     if (deletingTradeId == null) return;
     deleteMutation.mutate({ id: deletingTradeId }, {
       onSuccess: () => {
+        GA.tradeDeleted();
         toast.success('Trade deleted');
         queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
@@ -318,6 +320,7 @@ function TradeFormSheet({ isOpen, onOpenChange, trade }: { isOpen: boolean, onOp
       : createMutation.mutateAsync({ data: payload });
 
     action.then(() => {
+      GA.tradeSaved(!trade, formData.market);
       toast.success(`Trade ${trade ? 'updated' : 'logged'} successfully`);
       queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
@@ -333,6 +336,7 @@ function TradeFormSheet({ isOpen, onOpenChange, trade }: { isOpen: boolean, onOp
     if (confirm("Are you sure you want to delete this trade?")) {
       deleteMutation.mutate({ id: trade.id }, {
         onSuccess: () => {
+          GA.tradeDeleted();
           toast.success("Trade deleted");
           queryClient.invalidateQueries({ queryKey: getListTradesQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });

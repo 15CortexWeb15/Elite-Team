@@ -1,2 +1,4 @@
 - [FinTrack Architecture](fintrack-arch.md) — full-stack trading journal SaaS; key patterns, auth wiring, and backend conventions to keep consistent.
 - [CORS & deployment origin fix](cors-deployment-origin.md) — use REPLIT_DOMAINS (not REPLIT_DEPLOYMENT_URL) for exact-match allowlist; never wildcard *.replit.app with credentials.
+- [Onboarding ProtectedRoute reliability](onboarding-protected-route.md) — new users hit 404 on GET /onboarding; must handle isError + retry:false in the guard, and use mutateAsync + await invalidation before navigation.
+- [GA analytics pattern](ga-analytics.md) — thin analytics.ts wrapper with GA named-event map; trackPageView called in ClerkProviderWithRoutes on location change.

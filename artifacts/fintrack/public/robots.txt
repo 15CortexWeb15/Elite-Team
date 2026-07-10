@@ -1,2 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /journal
+Disallow: /analytics
+Disallow: /stocks
+Disallow: /ai-coach
+Disallow: /calendar
+Disallow: /profile
+Disallow: /settings
+Disallow: /feedback
+Disallow: /onboarding
+
+Sitemap: https://roxel.app/sitemap.xml

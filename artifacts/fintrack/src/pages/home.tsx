@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { useTheme } from 'next-themes';
+import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -314,21 +315,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-8 sm:py-10">
-        <div className="container mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="bg-primary text-primary-foreground h-6 w-6 rounded flex items-center justify-center">
-              <BarChart3 className="h-3.5 w-3.5" />
-            </div>
-            <span className="font-semibold text-foreground">Roxel</span>
-          </div>
-          <p className="text-xs sm:text-sm">&copy; {new Date().getFullYear()} Roxel. Built for serious traders.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/sign-in" className="hover:text-foreground transition-colors">Sign In</Link>
-            <Link href="/sign-up" className="hover:text-foreground transition-colors">Sign Up</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer full />
     </div>
   );
 }
