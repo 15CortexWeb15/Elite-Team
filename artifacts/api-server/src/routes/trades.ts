@@ -206,6 +206,147 @@ router.delete("/trades/:id", requireAuth, async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
+// ─── Bulk Import ─────────────────────────────────────────────────────────────
+
+router.post("/trades/import", requireAuth, async (req, res): Promise<void> => {
+  const userId = getUserId(req);
+  const { trades: raw } = req.body as {
+    trades: Array<{
+      asset: string;
+      market: string;
+      direction: string;
+      entryPrice: number;
+      exitPrice: number;
+      positionSize: number;
+      tradeDate: string;
+      closeDate?: string | null;
+      stopLoss?: number | null;
+      takeProfit?: number | null;
+      commission?: number | null;
+      riskPercent?: number | null;
+      profitLoss?: number | null;
+      notes?: string | null;
+    }>;
+  };
+
+  if (!Array.isArray(raw) || raw.length === 0) {
+    res.status(400).json({ error: "No trades provided" });
+    return;
+  }
+
+  const toInsert = raw.map((t) => {
+    const computed = computeTradeFields({
+      direction: t.direction as "long" | "short",
+      entryPrice: Number(t.entryPrice) || 0,
+      exitPrice: Number(t.exitPrice) || 0,
+      positionSize: Number(t.positionSize) || 0,
+      stopLoss: t.stopLoss != null ? Number(t.stopLoss) : null,
+      commission: t.commission != null ? Number(t.commission) : null,
+    });
+    return {
+      userId,
+      asset: (t.asset || "UNKNOWN").toUpperCase(),
+      market: (t.market || "stocks") as "crypto" | "forex" | "stocks" | "futures",
+      direction: (t.direction || "long") as "long" | "short",
+      entryPrice: String(t.entryPrice || 0),
+      exitPrice: String(t.exitPrice || 0),
+      positionSize: String(t.positionSize || 0),
+      stopLoss: t.stopLoss != null ? String(t.stopLoss) : null,
+      takeProfit: t.takeProfit != null ? String(t.takeProfit) : null,
+      commission: t.commission != null ? String(t.commission) : null,
+      riskPercent: t.riskPercent != null ? String(t.riskPercent) : null,
+      notes: t.notes ?? null,
+      tradeDate: toDateStr(t.tradeDate || new Date().toISOString()),
+      closeDate: t.closeDate ? toDateStr(t.closeDate) : null,
+      profitLoss: computed.profitLoss ?? (t.profitLoss != null ? String(t.profitLoss) : null),
+      profitLossPercent: computed.profitLossPercent,
+      riskReward: computed.riskReward,
+      result: computed.result,
+    };
+  });
+
+  const inserted = await db.insert(tradesTable).values(toInsert).returning();
+  res.status(201).json({ imported: inserted.length });
+});
+
+// ─── Import AI Analysis ───────────────────────────────────────────────────────
+
+router.post("/trades/import/analyze", requireAuth, async (req, res): Promise<void> => {
+  const { trades: raw } = req.body as { trades: Array<Record<string, unknown>> };
+
+  if (!Array.isArray(raw) || raw.length === 0) {
+    res.status(400).json({ error: "No trades provided" });
+    return;
+  }
+
+  const groqApiKey = process.env.GROQ_API_KEY;
+  if (!groqApiKey) {
+    res.status(503).json({ error: "AI not configured" });
+    return;
+  }
+
+  const wins = raw.filter(t => Number(t.profitLoss ?? 0) > 0).length;
+  const losses = raw.filter(t => Number(t.profitLoss ?? 0) < 0).length;
+  const totalPL = raw.reduce((s, t) => s + Number(t.profitLoss ?? 0), 0);
+  const assets = [...new Set(raw.map(t => t.asset))].slice(0, 20).join(", ");
+
+  const sample = raw.slice(0, 30).map(t =>
+    `${t.tradeDate} | ${t.asset} | ${t.direction?.toString().toUpperCase()} | Entry:${t.entryPrice} Exit:${t.exitPrice} | PL:${Number(t.profitLoss ?? 0).toFixed(2)}`
+  ).join("\n");
+
+  const prompt = `You are a trading coach. Briefly analyze this imported trading history batch.
+
+BATCH SUMMARY:
+- ${raw.length} trades | ${wins} wins | ${losses} losses
+- Total P&L: ${totalPL.toFixed(2)}
+- Assets: ${assets}
+
+SAMPLE TRADES:
+${sample}
+
+Respond with JSON only:
+{
+  "headline": "One punchy sentence summarizing performance",
+  "keyStrength": "The single biggest strength",
+  "keyWeakness": "The single biggest weakness",
+  "topInsight": "The most interesting pattern or insight from this data",
+  "nextStep": "One concrete action the trader should take"
+}`;
+
+  try {
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${groqApiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "Respond with valid JSON only, no markdown." },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.6,
+        max_tokens: 600,
+      }),
+    });
+
+    if (!groqRes.ok) {
+      res.status(502).json({ error: "AI service error" });
+      return;
+    }
+
+    const data = await groqRes.json() as { choices: Array<{ message: { content: string } }> };
+    const content = data.choices?.[0]?.message?.content ?? "{}";
+    let parsed: Record<string, string>;
+    try { parsed = JSON.parse(content); }
+    catch { const m = content.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : {}; }
+
+    res.json(parsed);
+  } catch {
+    res.status(500).json({ error: "Failed to analyze trades" });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function normalizeTrade(trade: typeof tradesTable.$inferSelect) {
   return {
     ...trade,

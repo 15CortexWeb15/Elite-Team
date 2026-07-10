@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useListTrades, useCreateTrade, useUpdateTrade, useDeleteTrade } from '@workspace/api-client-react';
 import type { Trade, TradeInput } from '@workspace/api-client-react';
+import { TradeImportDialog } from '@/components/TradeImportDialog';
 import { formatMoney, formatPercent, cnProfitLoss } from '@/lib/utils';
 import { format } from 'date-fns';
 import { 
@@ -16,7 +17,7 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Search, Plus, Target, ArrowUpDown, Trash2 } from 'lucide-react';
+import { Search, Plus, Target, ArrowUpDown, Trash2, Upload } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -29,6 +30,7 @@ export default function JournalPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [deletingTradeId, setDeletingTradeId] = useState<number | null>(null);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -82,10 +84,16 @@ export default function JournalPage() {
           <h1 className="text-3xl font-bold tracking-tight">Trade Journal</h1>
           <p className="text-muted-foreground mt-1">Review and manage your executions.</p>
         </div>
-        <Button onClick={handleOpenNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Trade
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)} className="gap-2">
+            <Upload className="h-4 w-4" />
+            Import
+          </Button>
+          <Button onClick={handleOpenNew} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Trade
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-xl border border-border">
@@ -206,6 +214,8 @@ export default function JournalPage() {
         onOpenChange={setIsSheetOpen} 
         trade={editingTrade} 
       />
+
+      <TradeImportDialog open={isImportOpen} onOpenChange={setIsImportOpen} />
 
       <AlertDialog open={deletingTradeId !== null} onOpenChange={(open) => { if (!open) setDeletingTradeId(null); }}>
         <AlertDialogContent>
