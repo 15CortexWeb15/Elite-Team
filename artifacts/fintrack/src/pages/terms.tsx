@@ -3,6 +3,8 @@ import { BarChart3, ArrowLeft } from 'lucide-react';
 import { Footer } from '@/components/Footer';
 
 const LAST_UPDATED = 'July 10, 2026';
+const SUPPORT_EMAIL = 'shamilkhalilov786@gmail.com';
+const WEBSITE = 'https://elite-team--8roxel8.replit.app';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -37,120 +39,167 @@ export default function TermsPage() {
           <p className="text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
         </div>
 
-        <Section title="1. Acceptance of Terms">
+        <Section title="1. Agreement to Terms">
           <p>
-            By accessing or using Roxel ("the Service"), you agree to be bound by these Terms of Service. If you
-            do not agree to these terms, please do not use the Service. These terms apply to all users, including
-            visitors, registered users, and anyone who accesses or uses the Service.
+            These Terms of Service ("Terms") govern your access to and use of Roxel, operated by{' '}
+            <strong className="text-foreground">Shamil Khalilov</strong> ("we", "us", "our"), based in the
+            United Kingdom. Our website is available at{' '}
+            <a href={WEBSITE} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">{WEBSITE}</a>.
+          </p>
+          <p>
+            By creating an account or using Roxel in any way, you confirm that you have read, understood, and
+            agreed to these Terms. If you do not agree, please stop using Roxel immediately.
           </p>
         </Section>
 
-        <Section title="2. Description of Service">
+        <Section title="2. What Roxel Is">
           <p>
-            Roxel is an AI-powered trading journal application that helps traders track, analyse, and improve
-            their trading performance. The Service includes trade logging, performance analytics, AI coaching,
-            market data viewing, and related features.
+            Roxel is an AI-powered trading journal application. It helps traders log trades, analyse their
+            performance, identify behavioural patterns, and receive AI-generated educational insights. Roxel is
+            a <strong className="text-foreground">journalling and analytical tool only</strong>.
           </p>
         </Section>
 
-        <Section title="3. User Accounts">
-          <p>To use most features of the Service, you must create an account. You agree to:</p>
+        <Section title="3. Not Financial or Investment Advice">
+          <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 mb-4">
+            <p className="font-semibold text-foreground mb-2">Important — Please Read Carefully</p>
+            <p>
+              Roxel does <strong>not</strong> provide financial advice, investment advice, trading
+              recommendations, or any form of regulated financial guidance.
+            </p>
+          </div>
+          <p>
+            All content on Roxel — including AI-generated analysis, performance metrics, pattern
+            observations, and any other output — is for <strong className="text-foreground">informational
+            and educational purposes only</strong>. It does not constitute a recommendation to buy, sell,
+            or hold any financial instrument.
+          </p>
+          <p>
+            <strong className="text-foreground">You remain solely responsible for every trading and
+            investment decision you make.</strong> Roxel, its owner, and its operators accept no liability
+            for any financial losses arising from your use of the platform or its AI features.
+          </p>
+          <p>
+            If you need personalised financial advice, please consult a qualified financial adviser regulated
+            by the Financial Conduct Authority (FCA) or the appropriate authority in your jurisdiction.
+          </p>
+        </Section>
+
+        <Section title="4. AI Features — Educational Insights Only">
+          <p>
+            Roxel's AI coach is powered by AI models (currently Llama 3 70B; future tiers may include Claude
+            Haiku and Fable 5). The AI analyses patterns in your journal data to surface educational observations
+            about your trading behaviour.
+          </p>
+          <p>
+            AI outputs should <strong className="text-foreground">never</strong> be treated as financial advice.
+            The AI may make errors, misinterpret data, or produce observations that are not applicable to your
+            situation. You should critically evaluate all AI output before acting on it.
+          </p>
+          <p>
+            See our full <Link href="/ai-disclaimer" className="text-primary underline underline-offset-2">AI Disclaimer</Link>.
+          </p>
+        </Section>
+
+        <Section title="5. User Accounts">
+          <p>To use Roxel, you must create an account via Clerk (our authentication provider). You agree to:</p>
           <ul className="list-disc list-inside space-y-1.5 ml-2">
-            <li>Provide accurate and complete information during registration.</li>
-            <li>Maintain the security of your account credentials.</li>
-            <li>Notify us immediately of any unauthorised use of your account.</li>
-            <li>Take responsibility for all activities that occur under your account.</li>
+            <li>Provide accurate, truthful information during registration</li>
+            <li>Keep your login credentials confidential</li>
+            <li>Notify us immediately if you suspect unauthorised access to your account</li>
+            <li>Be responsible for all activity that occurs under your account</li>
           </ul>
-          <p>
-            We reserve the right to suspend or terminate accounts that violate these terms or engage in
-            fraudulent, abusive, or harmful behaviour.
-          </p>
+          <p>You must be at least 18 years old to use Roxel.</p>
         </Section>
 
-        <Section title="4. Not Financial Advice">
-          <p className="font-medium text-foreground">
-            THE SERVICE IS FOR INFORMATIONAL AND EDUCATIONAL PURPOSES ONLY.
-          </p>
-          <p>
-            Nothing on Roxel — including AI-generated analysis, performance metrics, or any other content —
-            constitutes financial, investment, trading, or any other type of professional advice. Roxel is a
-            journaling and analytics tool, not a financial advisory service. Always consult a qualified financial
-            professional before making trading or investment decisions.
-          </p>
-          <p>
-            See our full <Link href="/ai-disclaimer" className="text-primary underline underline-offset-2">AI Disclaimer</Link> for details.
-          </p>
-        </Section>
-
-        <Section title="5. Acceptable Use">
+        <Section title="6. Acceptable Use">
           <p>You agree not to:</p>
           <ul className="list-disc list-inside space-y-1.5 ml-2">
-            <li>Use the Service for any illegal or unauthorised purpose.</li>
-            <li>Attempt to gain unauthorised access to any part of the Service or its systems.</li>
-            <li>Upload malicious code, viruses, or any disruptive content.</li>
-            <li>Reverse engineer, decompile, or attempt to extract source code from the Service.</li>
-            <li>Use the Service to distribute spam or unsolicited communications.</li>
-            <li>Violate any applicable laws or regulations.</li>
+            <li>Use Roxel for any illegal, fraudulent, or harmful purpose</li>
+            <li>Attempt to gain unauthorised access to Roxel's systems, servers, or databases</li>
+            <li>Upload malicious code, viruses, or disruptive content</li>
+            <li>Scrape, reverse-engineer, or copy Roxel's software or data</li>
+            <li>Harass, abuse, or threaten other users or our team</li>
+            <li>Use the AI features to generate content that is misleading, harmful, or unlawful</li>
+            <li>Violate any applicable laws or regulations</li>
           </ul>
         </Section>
 
-        <Section title="6. Intellectual Property">
+        <Section title="7. Account Suspension &amp; Termination">
           <p>
-            All content, features, and functionality of the Service — including but not limited to text, graphics,
-            logos, software, and AI-generated outputs — are owned by Roxel or its licensors and are protected by
-            intellectual property laws.
+            We reserve the right to suspend or permanently terminate accounts that violate these Terms, engage
+            in abusive behaviour, or use Roxel in a way that harms other users, third parties, or us.
           </p>
           <p>
-            Your trade data, notes, and personal journal entries remain your property. By using the Service, you
-            grant us a limited licence to process and store this data solely to provide the Service to you.
+            Where possible, we will notify you before taking action. However, in cases of serious or repeated
+            abuse, we may act without prior notice.
           </p>
-        </Section>
-
-        <Section title="7. Third-Party Services">
           <p>
-            The Service integrates with third-party services including Clerk (authentication), Groq (AI
-            processing), and Google Analytics (usage analytics). Your use of these integrations is also subject
-            to those services' respective terms and privacy policies.
+            You may also close your account at any time by contacting us at{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary underline underline-offset-2">{SUPPORT_EMAIL}</a>.
           </p>
         </Section>
 
-        <Section title="8. Service Availability & Modifications">
+        <Section title="8. Subscriptions &amp; Payments">
           <p>
-            We strive to maintain high availability of the Service, but do not guarantee uninterrupted access.
-            We reserve the right to modify, suspend, or discontinue the Service (or any part thereof) at any time
-            with reasonable notice where practical.
+            Roxel currently offers a free tier. Paid subscription tiers (Pro and Ultra) are planned and will
+            be billed through <strong className="text-foreground">Stripe</strong>. When subscriptions are
+            available:
+          </p>
+          <ul className="list-disc list-inside space-y-1.5 ml-2">
+            <li>Payments are processed securely by Stripe — we do not store your card details</li>
+            <li>Subscriptions renew automatically unless cancelled before the renewal date</li>
+            <li>Refund eligibility will be stated clearly at the time of purchase</li>
+          </ul>
+        </Section>
+
+        <Section title="9. Intellectual Property">
+          <p>
+            All software, design, content, and branding of Roxel is owned by Shamil Khalilov or its licensors.
+            You may not copy, reproduce, or distribute any part of Roxel without written permission.
+          </p>
+          <p>
+            Your journal data and trade entries remain your property. By using Roxel, you grant us a limited
+            licence to process and store this data solely to provide the service to you.
           </p>
         </Section>
 
-        <Section title="9. Disclaimer of Warranties">
+        <Section title="10. Disclaimer of Warranties">
           <p>
-            THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED,
-            INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
-            NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE ERROR-FREE, SECURE, OR UNINTERRUPTED.
+            ROXEL IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED.
+            WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE.
           </p>
         </Section>
 
-        <Section title="10. Limitation of Liability">
+        <Section title="11. Limitation of Liability">
           <p>
-            TO THE FULLEST EXTENT PERMITTED BY LAW, ROXEL AND ITS OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS
-            SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
-            INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, OR TRADING LOSSES, ARISING OUT OF OR IN
-            CONNECTION WITH YOUR USE OF THE SERVICE.
+            TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, SHAMIL KHALILOV AND ROXEL SHALL NOT BE LIABLE
+            FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES — INCLUDING TRADING
+            LOSSES — ARISING OUT OF OR RELATED TO YOUR USE OF ROXEL.
           </p>
         </Section>
 
-        <Section title="11. Changes to Terms">
+        <Section title="12. Governing Law">
           <p>
-            We reserve the right to update these Terms of Service at any time. Material changes will be
-            communicated by updating the "Last updated" date. Continued use of the Service after changes
-            constitutes acceptance of the revised terms.
+            These Terms are governed by the laws of <strong className="text-foreground">England and Wales</strong>.
+            Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales.
           </p>
         </Section>
 
-        <Section title="12. Contact">
+        <Section title="13. Changes to These Terms">
           <p>
-            Questions about these Terms? Contact us at{' '}
-            <a href="mailto:legal@roxel.app" className="text-primary underline underline-offset-2">legal@roxel.app</a>.
+            We may update these Terms at any time. We will update the "Last updated" date at the top.
+            Continued use of Roxel after changes constitutes acceptance. If you disagree with updated Terms,
+            you must stop using Roxel and may close your account.
+          </p>
+        </Section>
+
+        <Section title="14. Contact">
+          <p>
+            For questions about these Terms:<br />
+            <strong className="text-foreground">Shamil Khalilov</strong><br />
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary underline underline-offset-2">{SUPPORT_EMAIL}</a><br />
+            United Kingdom
           </p>
         </Section>
       </main>

@@ -1,48 +1,11 @@
-import React, { useState } from 'react';
 import { Link } from 'wouter';
-import { BarChart3, ArrowLeft, Mail, MessageSquare, Loader2, CheckCircle2 } from 'lucide-react';
+import { BarChart3, ArrowLeft, Mail, Clock, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Footer } from '@/components/Footer';
-import { GA } from '@/lib/analytics';
-import { toast } from 'sonner';
 
-const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') ?? '';
+const SUPPORT_EMAIL = 'shamilkhalilov786@gmail.com';
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', type: 'general', message: '' });
-
-  const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm(p => ({ ...p, [field]: e.target.value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.message.trim()) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE}/api/feedback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          type: form.type,
-          message: `[From: ${form.name || 'Anonymous'} | ${form.email || 'No email'}]\n\n${form.message}`,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed');
-      GA.feedbackSubmitted(form.type);
-      setSubmitted(true);
-    } catch {
-      toast.error('Failed to send message. Please email us directly.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
       <header className="border-b border-border/60 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -59,119 +22,96 @@ export default function ContactPage() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 sm:px-6 py-12 max-w-4xl">
-        <div className="mb-10">
+      <main className="flex-1 container mx-auto px-4 sm:px-6 py-16 sm:py-24 max-w-3xl">
+        <div className="mb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Contact</p>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Get in touch</h1>
           <p className="text-muted-foreground max-w-xl">
-            Have a question, found a bug, or want to share feedback? We read every message.
+            Have a question, found a bug, or want to share feedback? We'd love to hear from you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Contact info */}
-          <div className="space-y-6">
-            <div className="flex items-start gap-4 p-5 rounded-xl border border-border bg-card">
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0">
-                <Mail className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm mb-1">Email us</p>
-                <a href="mailto:hello@roxel.app" className="text-sm text-primary hover:underline underline-offset-2">
-                  hello@roxel.app
-                </a>
-                <p className="text-xs text-muted-foreground mt-1">We typically respond within 24–48 hours.</p>
-              </div>
+        <div className="space-y-4 mb-12">
+          {/* Email card */}
+          <div className="flex items-start gap-5 p-6 rounded-xl border border-border bg-card">
+            <div className="h-11 w-11 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0">
+              <Mail className="h-5 w-5" />
             </div>
-
-            <div className="flex items-start gap-4 p-5 rounded-xl border border-border bg-card">
-              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0">
-                <MessageSquare className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm mb-1">In-app feedback</p>
-                <p className="text-xs text-muted-foreground">
-                  Already a user? Use the{' '}
-                  <Link href="/feedback" className="text-primary hover:underline underline-offset-2">Feedback</Link>
-                  {' '}page inside the app — it's the fastest way to reach us.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-xl border border-border bg-card">
-              <p className="font-medium text-sm mb-2">For legal & privacy</p>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <p>Privacy: <a href="mailto:privacy@roxel.app" className="text-primary hover:underline underline-offset-2">privacy@roxel.app</a></p>
-                <p>Legal: <a href="mailto:legal@roxel.app" className="text-primary hover:underline underline-offset-2">legal@roxel.app</a></p>
-              </div>
+            <div>
+              <p className="font-semibold mb-1">Email Support</p>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="text-primary hover:underline underline-offset-2 font-medium text-sm"
+              >
+                {SUPPORT_EMAIL}
+              </a>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                The best way to reach us. We aim to reply within 24–48 hours on business days.
+              </p>
             </div>
           </div>
 
-          {/* Form */}
-          <div className="lg:col-span-2">
-            {submitted ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-16 text-center rounded-xl border border-border bg-card">
-                <div className="h-14 w-14 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle2 className="h-7 w-7 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-xl font-semibold mb-2">Message sent!</p>
-                  <p className="text-sm text-muted-foreground max-w-xs">
-                    Thanks for reaching out. We'll get back to you within 24–48 hours.
-                  </p>
-                </div>
-                <Button variant="outline" onClick={() => setForm({ name: '', email: '', type: 'general', message: '' }) || setSubmitted(false)}>
-                  Send another message
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5 p-6 rounded-xl border border-border bg-card">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
-                    <Input id="name" placeholder="Your name" value={form.name} onChange={set('name')} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email <span className="text-muted-foreground text-xs">(optional)</span></Label>
-                    <Input id="email" type="email" placeholder="your@email.com" value={form.email} onChange={set('email')} />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="type">Topic</Label>
-                  <Select value={form.type} onValueChange={v => setForm(p => ({ ...p, type: v }))}>
-                    <SelectTrigger id="type"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">General enquiry</SelectItem>
-                      <SelectItem value="bug">Bug report</SelectItem>
-                      <SelectItem value="feature">Feature request</SelectItem>
-                      <SelectItem value="billing">Billing or account</SelectItem>
-                      <SelectItem value="privacy">Privacy or legal</SelectItem>
-                      <SelectItem value="press">Press or partnership</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message <span className="text-destructive">*</span></Label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={5}
-                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
-                    placeholder="Tell us what's on your mind..."
-                    value={form.message}
-                    onChange={set('message')}
-                  />
-                </div>
-
-                <Button type="submit" disabled={loading || !form.message.trim()} className="w-full gap-2">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Send message
-                </Button>
-              </form>
-            )}
+          {/* Response time */}
+          <div className="flex items-start gap-5 p-6 rounded-xl border border-border bg-card">
+            <div className="h-11 w-11 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold mb-1">Response Time</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We typically respond within <strong className="text-foreground">24–48 hours</strong> on
+                weekdays. We're based in the <strong className="text-foreground">United Kingdom</strong> (GMT/BST).
+              </p>
+            </div>
           </div>
+
+          {/* In-app feedback */}
+          <div className="flex items-start gap-5 p-6 rounded-xl border border-border bg-card">
+            <div className="h-11 w-11 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0">
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold mb-1">In-App Feedback</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Already signed in? Use the{' '}
+                <Link href="/feedback" className="text-primary hover:underline underline-offset-2">
+                  Feedback
+                </Link>{' '}
+                page inside the app — it's the quickest way to send us a bug report or feature request.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* What we can help with */}
+        <div className="p-6 rounded-xl border border-border bg-card/50 mb-12">
+          <p className="font-semibold mb-4">What we can help with</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+            {[
+              'Account &amp; login issues',
+              'Bug reports',
+              'Feature requests',
+              'Billing &amp; subscription queries',
+              'Privacy or data requests',
+              'General questions about Roxel',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                <span dangerouslySetInnerHTML={{ __html: item }} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground mb-4">Ready to get in touch?</p>
+          <Button size="lg" asChild>
+            <a href={`mailto:${SUPPORT_EMAIL}`}>
+              <Mail className="h-4 w-4 mr-2" />
+              Email us now
+            </a>
+          </Button>
         </div>
       </main>
 
