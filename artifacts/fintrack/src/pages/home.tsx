@@ -213,6 +213,19 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── Video Section ── */}
+        <section className="pb-16 sm:pb-24 px-4 flex flex-col items-center">
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">See it in action</p>
+          <div className="w-full max-w-4xl rounded-xl overflow-hidden border border-border/60 shadow-2xl shadow-primary/5 bg-[#0a0a0a]">
+            <iframe
+              src={`${import.meta.env.BASE_URL}video`}
+              className="w-full aspect-[16/9] border-0"
+              title="Roxel Product Video"
+              allow="autoplay; fullscreen"
+            />
+          </div>
+        </section>
+
         {/* ── Features ── */}
         <section id="features" className="bg-card border-y border-border py-16 sm:py-24">
           <div className="container mx-auto px-4 sm:px-6">

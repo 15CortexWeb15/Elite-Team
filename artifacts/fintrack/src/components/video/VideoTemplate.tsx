@@ -8,13 +8,13 @@ import { Scene4 } from './video_scenes/Scene4';
 import { Scene5 } from './video_scenes/Scene5';
 import { RecordOverlay } from './RecordOverlay';
 
-// Total 25 seconds — 5 scenes × 5s each
+// Total 50 seconds — 5 scenes × 10s each
 const SCENE_DURATIONS = {
-  intro:     5000,
-  journal:   5000,
-  analytics: 5000,
-  coach:     5000,
-  outro:     5000,
+  intro:     10000,
+  journal:   10000,
+  analytics: 10000,
+  coach:     10000,
+  outro:     10000,
 };
 
 /** Persistent background layer — lives outside AnimatePresence for cross-scene continuity */
@@ -99,14 +99,14 @@ export default function VideoTemplate() {
   return (
     // Outer: full screen black background for letterbox on desktop
     <div className="w-full h-screen bg-black flex items-center justify-center">
-      {/* Inner: 9:16 portrait container */}
+      {/* Inner: 16:9 widescreen container */}
       <div
         className="relative overflow-hidden bg-[#0a0a0a] text-[#ededed]"
         style={{
-          aspectRatio: '9 / 16',
+          aspectRatio: '16 / 9',
           height: '100%',
           maxHeight: '100vh',
-          maxWidth: 'calc(100vh * 9 / 16)',
+          maxWidth: 'calc(100vh * 16 / 9)',
           width: 'auto',
         }}
       >

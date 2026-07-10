@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export function Scene5() {
@@ -6,104 +6,63 @@ export function Scene5() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 600),
-      setTimeout(() => setPhase(2), 1500),
-      setTimeout(() => setPhase(3), 2200),
-      setTimeout(() => setPhase(4), 4500),
+      setTimeout(() => setPhase(1), 500),
+      setTimeout(() => setPhase(2), 2500),
+      setTimeout(() => setPhase(3), 4500),
     ];
-    return () => timers.forEach(clearTimeout);
+    return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0a] z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.1 }}
-      transition={{ duration: 1 }}
+      className="absolute inset-0 flex items-center justify-center overflow-hidden bg-[#0a0a0a]"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, filter: 'blur(20px)' }}
+      transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative z-20 flex flex-col items-center text-center px-[8vw]">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
 
-        {/* Big logo mark */}
-        <motion.div
-          className="rounded-3xl flex items-center justify-center relative overflow-hidden bg-[#111] border border-[#00ff87]/30"
-          style={{
-            width: '22vh',
-            height: '22vh',
-            marginBottom: '4vh',
-            boxShadow: '0 0 80px rgba(0,255,135,0.15)',
-          }}
-          initial={{ scale: 2, opacity: 0, rotateZ: 45 }}
-          animate={phase >= 1 ? { scale: 1, opacity: 1, rotateZ: 0 } : { scale: 2, opacity: 0, rotateZ: 45 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-tr from-[#00ff87]/20 to-transparent"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
-          <svg width="11vh" height="11vh" viewBox="0 0 24 24" fill="none" stroke="#00ff87" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-            <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-          </svg>
-        </motion.div>
+      <div className="relative z-10 w-full flex flex-col items-center justify-center text-center">
+        <div className="overflow-hidden mb-16">
+          <motion.h2
+            className="text-[6vw] font-bold tracking-tighter text-white leading-[1.1]"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={phase >= 1 ? { y: 0, opacity: 1 } : { y: '100%', opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Build your edge.
+          </motion.h2>
+          <motion.h2
+            className="text-[6vw] font-bold tracking-tighter text-white/40 leading-[1.1]"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={phase >= 2 ? { y: 0, opacity: 1 } : { y: '100%', opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Trade with clarity.
+          </motion.h2>
+        </div>
 
-        {/* Brand name */}
         <motion.div
-          className="font-bold text-white tracking-tight leading-none"
-          style={{ fontSize: '12vh', marginBottom: '1.5vh' }}
+          className="flex flex-col items-center gap-6 mt-8 pt-12 border-t border-white/10"
           initial={{ opacity: 0, y: 20 }}
-          animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          Roxel
+          <div className="flex items-center gap-4">
+            <div className="bg-white text-[#0a0a0a] h-12 w-12 rounded-xl flex items-center justify-center shrink-0">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+            </div>
+            <span className="font-bold text-5xl tracking-tight text-white">Roxel</span>
+          </div>
+          <p className="text-white/40 font-medium tracking-widest text-[1.2vw] uppercase mt-2">
+            The professional standard for trading journals
+          </p>
         </motion.div>
-
-        {/* Tagline */}
-        <motion.div
-          className="font-mono text-[#00ff87] tracking-widest uppercase"
-          style={{ fontSize: '2vh', marginBottom: '2.5vh' }}
-          initial={{ opacity: 0 }}
-          animate={phase >= 3 ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 1 }}
-        >
-          START JOURNALING FOR FREE
-        </motion.div>
-
-        {/* Asset types */}
-        <motion.div
-          className="font-mono text-white/40"
-          style={{ fontSize: '1.5vh' }}
-          initial={{ opacity: 0 }}
-          animate={phase >= 3 ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-        >
-          Crypto · Forex · Equities · Options · Futures
-        </motion.div>
-
-        {/* Animated accent ring */}
-        <motion.div
-          className="absolute rounded-full border border-[#00ff87]/10 pointer-events-none"
-          style={{ width: '50vh', height: '50vh' }}
-          animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute rounded-full border border-[#00ff87]/05 pointer-events-none"
-          style={{ width: '70vh', height: '70vh' }}
-          animate={{ scale: [1.05, 1, 1.05], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        />
       </div>
-
-      {/* Cinematic flash on loop */}
-      <motion.div
-        className="absolute inset-0 bg-white z-50 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={phase >= 4 ? { opacity: [0, 1, 0] } : { opacity: 0 }}
-        transition={{ duration: 0.5, times: [0, 0.1, 1] }}
-      />
     </motion.div>
   );
 }

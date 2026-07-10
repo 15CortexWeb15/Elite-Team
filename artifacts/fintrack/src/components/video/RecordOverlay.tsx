@@ -6,7 +6,10 @@ const TOTAL_DURATION_MS = 4000 + 5000 + 5000 + 5000 + 6000; // 25s
 type State = 'idle' | 'waiting' | 'recording' | 'done';
 
 export function RecordOverlay() {
+  // Don't show the record button when embedded as an iframe on the landing page
+  const isEmbedded = window.self !== window.top;
   const [state, setState] = useState<State>('idle');
+  if (isEmbedded) return null;
   const [progress, setProgress] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
